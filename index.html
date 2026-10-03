@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sofia Vallejo</title>
+  <meta name="description" content="Sofia Vallejo, audio engineer and PhD candidate in Sonic Interaction Design at IEM, Kunstuniversität Graz. Sonification, music production and musical acoustics.">
+  <meta name="author" content="Sofia Vallejo">
+  <meta property="og:title" content="Sofia Vallejo">
+  <meta property="og:description" content="Sonification research, music production and sound projects.">
+  <meta property="og:image" content="assets/img/me.jpg">
+  <meta name="theme-color" content="#1d2257">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Pixelify+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body class="no-js">
+
+  <!-- Wallpaper -->
+  <canvas id="scope" aria-hidden="true"></canvas>
+
+  <!-- Desktop icons -->
+  <nav class="icons" aria-label="Desktop">
+    <button class="icon" data-open="about"    data-icon="note"><span>About.txt</span></button>
+    <button class="icon" data-open="research" data-icon="folder"><span>Research</span></button>
+    <button class="icon" data-open="projects" data-icon="folderblue"><span>Projects</span></button>
+    <button class="icon" data-open="music"    data-icon="cd"><span>Music.amp</span></button>
+    <button class="icon" data-open="teaching" data-icon="cap"><span>Teaching</span></button>
+    <button class="icon" data-open="cv"       data-icon="pdf"><span>CV.pdf</span></button>
+    <button class="icon" data-open="fotos"    data-icon="camera"><span>Fotos</span></button>
+    <button class="icon" data-open="contact"  data-icon="mail"><span>Contact</span></button>
+    <button class="icon" data-open="modes"    data-icon="string"><span>Modes.exe</span></button>
+  </nav>
+
+  <main id="windows">
+
+    <!-- ===================== ABOUT ===================== -->
+    <section class="win" id="about" data-title="About.txt" data-icon="note" data-x="0.08" data-y="0.07" data-w="620" aria-labelledby="about-h">
+      <div class="win-body">
+        <div class="about">
+          <figure class="portrait">
+            <img src="assets/img/me.jpg" alt="A fluffy white cat with a pink flower on its head, smiling" width="474" height="426">
+            <figcaption>me.jpg (basically)</figcaption>
+          </figure>
+          <div class="about-text">
+            <h1 id="about-h">Hola, I'm Sofia.</h1>
+            <p class="lede">Audio engineer and researcher from Mexico City, based in Graz, Austria. I turn data into sound and build tools for doing it.</p>
+            <p>I'm a PhD candidate and University Assistant in <strong>Sonic Interaction Design</strong> at the
+              <a href="https://iem.kug.ac.at/" target="_blank" rel="noopener">Institute of Electronic Music and Acoustics (IEM)</a>,
+              University of Music and Performing Arts Graz. My research is about <strong>sonification</strong>: how we listen to data, and the software we use to make that possible.</p>
+            <p>I also teach as a teaching assistant, including <strong>Musical Acoustics</strong>, where we look at strings, pipes, rooms and ears.</p>
+            <p>Our ICAD 2025 paper on sonification software won the <strong>Best Student Paper Award</strong>, and I've received the Audio Developer Conference <strong>Diversity Scholarship</strong> twice.</p>
+            <p>Before Graz I did an MSc in Sound and Music Computing at the Music Technology Group (UPF, Barcelona), where I modelled analog synth oscillators with neural networks. Before <em>that</em>, I spent years in studios and on stages in Mexico City: recording, mixing, mastering, playing bass and running front-of-house.</p>
+          </div>
+        </div>
+        <dl class="facts">
+          <div><dt>Now</dt><dd>PhD &amp; University Assistant, IEM · KUG Graz</dd></div>
+          <div><dt>From</dt><dd>Mexico City</dd></div>
+          <div class="wide"><dt>Interests</dt><dd>Music, machine learning for audio, DSP, acoustics, sonification, sonic interaction design</dd></div>
+          <div class="wide"><dt>Speaks</dt><dd>Spanish (native), English (C2), German (B1), Catalan (A2)</dd></div>
+        </dl>
+
+        <h2 class="sec-h offclock">Off the clock</h2>
+        <p>Mostly cooking. I love food and treat the kitchen as a temple. I also keep a garden going, take photos (some are in <button class="linklike" data-open="fotos">Fotos</button>), and lose whole weekends to open-world games, preferably ones with horses.</p>
+        <!-- More ideas: an album on repeat, the dish you're proudest of, what's growing in the garden, your synth or bass. -->
+        <dl class="favs">
+          <div><dt>Favourite game</dt><dd>Red Dead Redemption</dd></div>
+          <div><dt>Favourite film</dt><dd>Star Wars: The Empire Strikes Back</dd></div>
+        </dl>
+        <div class="btn-row">
+          <button class="btn" data-open="research">Research</button>
+          <button class="btn" data-open="projects">Projects</button>
+          <button class="btn" data-open="music">Music</button>
+          <a class="btn btn-primary" href="assets/cv/Sofia_Vallejo_CV.pdf" download>Download CV</a>
+        </div>
+      </div>
+      <footer class="statusbar"><span>Graz, AT</span><span>47.07°N 15.44°E</span></footer>
+    </section>
+
+    <!-- ===================== RESEARCH ===================== -->
+    <section class="win" id="research" data-title="Research" data-icon="folder" data-x="0.30" data-y="0.10" data-w="720" aria-labelledby="research-h">
+      <div class="win-body">
+        <h2 id="research-h" class="sec-h">Publications</h2>
+
+        <ol class="pubs">
+          <!-- TODO(Sofia): ICAD 2026 paper. Fill in title, co-authors and link once published, then remove class "todo" and the "forthcoming" tag. -->
+          <li class="pub todo">
+            <div class="pub-year">2026</div>
+            <div class="pub-main">
+              <h3 class="pub-title">[ICAD 2026 paper title] <span class="badge">forthcoming</span></h3>
+              <p class="pub-authors"><b>S. Vallejo Budziszewski</b>, [co-authors]</p>
+              <p class="pub-venue">Proc. 31st International Conference on Auditory Display (ICAD 2026)</p>
+            </div>
+          </li>
+
+          <!-- TODO(Sofia): Forum Acusticum paper. Fill in title and co-authors, then remove class "todo" (and "forthcoming" once out). -->
+          <li class="pub todo">
+            <div class="pub-year">2026</div>
+            <div class="pub-main">
+              <h3 class="pub-title">[Forum Acusticum paper title] <span class="badge">forthcoming</span></h3>
+              <p class="pub-authors"><b>S. Vallejo Budziszewski</b>, [co-authors]</p>
+              <p class="pub-venue">Proc. Forum Acusticum Euronoise 2026, Graz, Austria</p>
+            </div>
+          </li>
+
+          <li class="pub">
+            <div class="pub-year">2025</div>
+            <div class="pub-main">
+              <h3 class="pub-title">Legacy, active &amp; future software tools in sonification research <span class="award">★ Best Student Paper</span></h3>
+              <p class="pub-authors"><b>S. Vallejo Budziszewski</b>, K. Gross-Vogt</p>
+              <p class="pub-venue">Proc. 30th International Conference on Auditory Display (ICAD 2025), Coimbra, Portugal</p>
+              <details>
+                <summary>Abstract</summary>
+                <p>This article provides an overview of the development of active and legacy software tools for sonification. A collection of tools has been compiled and categorized according to research trends suggested in this paper, for the period 1990 to the present. The tools are categorized into five main user scenarios, highlighting key features of sustainable software, and identifying major challenges. The article also outlines a research agenda that considers the application of machine learning for generating intuitive and adaptive sonifications.</p>
+              </details>
+              <div class="pub-links">
+                <a class="tag-link strong" href="https://repository.gatech.edu/bitstreams/24d4ff78-cbfa-4020-9e48-fd3cd8efd4a8/download" target="_blank" rel="noopener">PDF</a>
+                <a class="tag-link" href="https://doi.org/10.21785/icad2025.071" target="_blank" rel="noopener">DOI</a>
+                <a class="tag-link" href="https://phaidra.kug.ac.at/o:136197" target="_blank" rel="noopener">Dataset (tool survey)</a>
+                <button class="tag-link" data-bib="bib-icad25">BibTeX</button>
+              </div>
+              <pre class="bib" id="bib-icad25" hidden>@inproceedings{vallejo2025sonification,
+  author    = {Vallejo Budziszewski, Sofia and Gross-Vogt, Katharina},
+  title     = {Legacy, Active \& Future Software Tools in Sonification Research},
+  booktitle = {Proceedings of the 30th International Conference on Auditory Display (ICAD 2025)},
+  address   = {Coimbra, Portugal},
+  year      = {2025},
+  doi       = {10.21785/icad2025.071}
+}</pre>
+            </div>
+          </li>
+
+          <li class="pub">
+            <div class="pub-year">2024</div>
+            <div class="pub-main">
+              <h3 class="pub-title">Modeling the voltage controlled oscillator using augmented neural networks</h3>
+              <p class="pub-authors"><b>S. Vallejo Budziszewski</b></p>
+              <p class="pub-venue">MSc thesis, Sound and Music Computing, Music Technology Group, Universitat Pompeu Fabra</p>
+              <details>
+                <summary>Summary</summary>
+                <p>A digital model of the VCO of the analog RSF Kobol synthesizer, built with augmented neural networks. The model learns how the oscillator's frequency behaves and how it responds to control voltage, and a phase integrator turns that into a waveform.</p>
+              </details>
+              <div class="pub-links">
+                <a class="tag-link" href="https://zenodo.org/records/13861977" target="_blank" rel="noopener">Zenodo</a>
+                <a class="tag-link" href="https://github.com/sofiavallejob/KobolRSF" target="_blank" rel="noopener">Code</a>
+              </div>
+            </div>
+          </li>
+        </ol>
+
+        <h2 class="sec-h">Awards</h2>
+        <ul class="rows">
+          <li><span class="row-date">2025</span><span><b>Best Student Paper Award</b>, ICAD 2025, Coimbra</span></li>
+          <!-- TODO(Sofia): add the two years of the ADC scholarship, e.g. "2024, 2025" -->
+          <li><span class="row-date">2× </span><span><b>Diversity Scholarship</b>, Audio Developer Conference (ADC)</span></li>
+        </ul>
+
+        <h2 class="sec-h">Talks &amp; workshops</h2>
+        <ul class="rows">
+          <li><span class="row-date">Jul 2025</span><span><b>Sonification of Air Particles in Graz</b>. Workshop at the <a href="https://smc25.iem.at/summer-school/" target="_blank" rel="noopener">SMC 2025 Summer School</a>, with Katharina Groß-Vogt. Participants sonified nano- and micro-particle data from Graz's air in SuperCollider and Pure Data.</span></li>
+          <li><span class="row-date">Sep 2026</span><span><b>Forum Acusticum Euronoise 2026</b>, Graz. Paper presentation.</span></li>
+          <li><span class="row-date">Jul 2026</span><span><b>ICAD 2026</b>. Paper presentation.</span></li>
+          <li><span class="row-date">Jul 2025</span><span><b>ICAD 2025</b>, Coimbra. Paper presentation.</span></li>
+          <li><span class="row-date">2023</span><span><b>Measure of Music</b> hackathon &amp; conference. Project presentation (Fan-Turnout).</span></li>
+        </ul>
+      </div>
+      <footer class="statusbar"><span>2 published · 2 forthcoming</span><span>IEM · KUG</span></footer>
+    </section>
+
+    <!-- ===================== PROJECTS ===================== -->
+    <section class="win" id="projects" data-title="Projects" data-icon="folderblue" data-x="0.16" data-y="0.14" data-w="820" aria-labelledby="projects-h">
+      <div class="toolbar" role="toolbar" aria-label="Filter projects">
+        <h2 id="projects-h" class="visually-hidden">Projects</h2>
+        <button class="chip" aria-pressed="true" data-filter="all">All</button>
+        <button class="chip" aria-pressed="false" data-filter="sonification">Sonification</button>
+        <button class="chip" aria-pressed="false" data-filter="research">Research &amp; ML</button>
+        <button class="chip" aria-pressed="false" data-filter="pd">Pure Data &amp; code</button>
+      </div>
+      <div class="win-body">
+        <!-- Newest first. To add a screenshot, swap the placeholder <div class="card-thumb thumb-placeholder ..."> for an <img> like the cards further down. -->
+        <ul class="cards">
+          <li class="card" data-cat="sonification">
+            <a class="card-thumb thumb-takt" href="https://sofiavallejob.github.io/takt/" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="assets/img/projects/takt.png" alt="" loading="lazy"></a>
+            <div class="card-body">
+              <p class="card-meta">2026 · Web Audio · live data</p>
+              <h3>Takt</h3>
+              <p><em>Rail networks as strings.</em> Each route is a string tuned by its length, and trains pluck the lines they cross. Late trains drift out of tune. Live from 15+ cities.</p>
+              <div class="pub-links">
+                <a class="tag-link strong" href="https://sofiavallejob.github.io/takt/" target="_blank" rel="noopener">▶ Listen live</a>
+                <a class="tag-link" href="https://github.com/sofiavallejob/takt" target="_blank" rel="noopener">Code</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="sonification">
+            <a class="card-thumb thumb-wil" href="https://github.com/sofiavallejob/whatisleft" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><span class="choir" aria-hidden="true"></span></a>
+            <div class="card-body">
+              <p class="card-meta">2026 · Web Audio · Pure Data</p>
+              <h3>What Is Left</h3>
+              <p>Every country starts as the same choir of 160 voices. What you hear missing is what was taken: the killed, the displaced, the disappeared.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://github.com/sofiavallejob/whatisleft" target="_blank" rel="noopener">Code</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="sonification">
+            <div class="card-thumb thumb-placeholder thumb-orbit" aria-hidden="true"><span>debris</span></div>
+            <div class="card-body">
+              <p class="card-meta">2026 · in progress</p>
+              <h3>Space debris sonification</h3>
+              <p>Listening to the junk orbiting Earth. Coming soon.</p>
+            </div>
+          </li>
+
+          <li class="card" data-cat="sonification research">
+            <div class="card-thumb thumb-placeholder thumb-rules" aria-hidden="true"><span>rules</span></div>
+            <div class="card-body">
+              <p class="card-meta">2025 – · IEM Graz</p>
+              <h3>ML Sonification Toolspace</h3>
+              <p>A rule-based sonification tool for mapping data to sound, building on our ICAD survey of sonification software.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://git.iem.at/p4632/ml-sonification-toolspace" target="_blank" rel="noopener">Code</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="sonification">
+            <div class="card-thumb thumb-placeholder thumb-letters" aria-hidden="true"><span>Aa</span></div>
+            <div class="card-body">
+              <p class="card-meta">2024 – · IEM Graz</p>
+              <h3>The Letter Day Project</h3>
+              <p>A pen with sound feedback that helps first graders learn to write, linking each letter's shape to its sound.</p>
+            </div>
+          </li>
+
+          <li class="card" data-cat="research">
+            <a class="card-thumb" href="https://zenodo.org/records/13861977" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="assets/img/projects/vco.jpg" alt="" loading="lazy"></a>
+            <div class="card-body">
+              <p class="card-meta">2024 · MTG · PyTorch</p>
+              <h3>Kobol RSF VCO</h3>
+              <p>My MSc thesis: a neural network that emulates the oscillator of the analog RSF Kobol synth.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://zenodo.org/records/13861977" target="_blank" rel="noopener">Thesis</a>
+                <a class="tag-link" href="https://github.com/sofiavallejob/KobolRSF" target="_blank" rel="noopener">Code</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="research">
+            <a class="card-thumb" href="https://www.upf.edu/web/mtg/ongoing-projects/-/asset_publisher/DneGVrJZ7tmE/content/id/245414020/maximized" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="assets/img/projects/ls.jpg" alt="" loading="lazy"></a>
+            <div class="card-body">
+              <p class="card-meta">2023 – 24 · MTG &amp; BMAT</p>
+              <h3>LoudSense</h3>
+              <p>Estimating how audible background music is in TV and film, for fairer royalties.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://www.upf.edu/web/mtg/ongoing-projects/-/asset_publisher/DneGVrJZ7tmE/content/id/245414020/maximized" target="_blank" rel="noopener">Project</a>
+                <a class="tag-link" href="https://github.com/sofiavallejob/LoudSense" target="_blank" rel="noopener">Code</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="research">
+            <a class="card-thumb" href="https://github.com/sofiavallejob/TranscribeASL" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="assets/img/projects/asl.jpg" alt="" loading="lazy"></a>
+            <div class="card-body">
+              <p class="card-meta">2023 · Wekinator, Processing</p>
+              <h3>Transcribe ASL</h3>
+              <p>Real-time American Sign Language to text with interactive machine learning.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://github.com/sofiavallejob/TranscribeASL" target="_blank" rel="noopener">Code</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="research">
+            <a class="card-thumb" href="https://github.com/tlr-id/measure_of_music-MTG_best" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="assets/img/projects/MOM.jpg" alt="" loading="lazy"></a>
+            <div class="card-body">
+              <p class="card-meta">2023 · Measure of Music</p>
+              <h3>Fan-Turnout</h3>
+              <p>Hackathon project on music data and audience turnout.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://github.com/tlr-id/measure_of_music-MTG_best" target="_blank" rel="noopener">Code</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="research">
+            <div class="card-thumb thumb-placeholder thumb-groove" aria-hidden="true"><span>groove</span></div>
+            <div class="card-body">
+              <p class="card-meta">2023 · UPF · DNNs</p>
+              <h3>Groove estimation</h3>
+              <p>Can a deep network tell how much a track grooves? Trained on the Tropical Genres Dataset.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://github.com/sofiavallejob/GrooveEstimationUsingDNNs" target="_blank" rel="noopener">Code</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="pd">
+            <a class="card-thumb" href="https://github.com/sofiavallejob/MarkovModelsInPD" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="assets/img/projects/markov-models.jpg" alt="" loading="lazy"></a>
+            <div class="card-body">
+              <p class="card-meta">2023 · Pure Data</p>
+              <h3>Markov chords</h3>
+              <p>Markov chains that write chord progressions in any major key and play them through Serum.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://github.com/sofiavallejob/MarkovModelsInPD" target="_blank" rel="noopener">Patch</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="pd">
+            <a class="card-thumb" href="https://www.youtube.com/watch?v=l0DSrargaQY" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="assets/img/projects/conciousness.jpg" alt="" loading="lazy"></a>
+            <div class="card-body">
+              <p class="card-meta">2023 · Pure Data</p>
+              <h3>Consciousness</h3>
+              <p>Final lab for the MTG course on computational music creativity.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://www.youtube.com/watch?v=l0DSrargaQY" target="_blank" rel="noopener">Video</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="pd">
+            <a class="card-thumb" href="https://www.youtube.com/watch?v=LK4_Kl8M_mU" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="assets/img/projects/ambientgenerator.jpg" alt="" loading="lazy"></a>
+            <div class="card-body">
+              <p class="card-meta">2023 · Pure Data</p>
+              <h3>Ambient Generator</h3>
+              <p>Granular ambient beds from two chords, plus a TR-808-style kit.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://www.youtube.com/watch?v=LK4_Kl8M_mU" target="_blank" rel="noopener">Video</a>
+                <a class="tag-link" href="https://github.com/sofiavallejob/AmbientGenerator" target="_blank" rel="noopener">Patch</a>
+              </div>
+            </div>
+          </li>
+
+          <li class="card" data-cat="pd">
+            <a class="card-thumb" href="https://www.youtube.com/watch?v=or7sDQCsSp8" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="assets/img/projects/rtg.jpg" alt="" loading="lazy"></a>
+            <div class="card-body">
+              <p class="card-meta">2023 · Pure Data</p>
+              <h3>Random Tone Generator</h3>
+              <p>A stochastic tone plugin with an effects chain for atmospheric textures.</p>
+              <div class="pub-links">
+                <a class="tag-link" href="https://www.youtube.com/watch?v=or7sDQCsSp8" target="_blank" rel="noopener">Video</a>
+                <a class="tag-link" href="https://github.com/sofiavallejob/Random-Tone-Generator" target="_blank" rel="noopener">Patch</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <footer class="statusbar"><span data-count>14 objects</span><span><a href="https://github.com/sofiavallejob" target="_blank" rel="noopener">github.com/sofiavallejob</a></span></footer>
+    </section>
+
+    <!-- ===================== MUSIC ===================== -->
+    <section class="win win-amp" id="music" data-title="Music.amp" data-icon="cd" data-x="0.52" data-y="0.06" data-w="480" aria-labelledby="music-h">
+      <div class="win-body">
+        <h2 id="music-h" class="visually-hidden">Music production</h2>
+        <div class="amp-display">
+          <div class="amp-lcd">
+            <p class="amp-now" data-now>Pick a track ↓</p>
+            <a class="amp-out" data-out href="#" target="_blank" rel="noopener" hidden>open ↗</a>
+            <p class="amp-role" data-role>recording · mixing · mastering · sound design</p>
+          </div>
+          <canvas class="amp-bars" width="140" height="44" aria-hidden="true"></canvas>
+        </div>
+        <div class="amp-embed" data-embed hidden></div>
+
+        <div class="toolbar amp-filters" role="toolbar" aria-label="Filter by role">
+          <button class="chip" aria-pressed="true" data-role-filter="all">All</button>
+          <button class="chip" aria-pressed="false" data-role-filter="mastering">Mastering</button>
+          <button class="chip" aria-pressed="false" data-role-filter="mixing">Mixing</button>
+          <button class="chip" aria-pressed="false" data-role-filter="recording">Recording</button>
+          <button class="chip" aria-pressed="false" data-role-filter="sound design">Sound design</button>
+          <button class="chip" aria-pressed="false" data-role-filter="bass">Bass</button>
+        </div>
+
+        <!-- data-embed: full embed URL. To add a track: copy an <li>, change the cover, text, roles and embed URL. -->
+        <ol class="playlist">
+          <li><button data-embed="https://open.spotify.com/embed/track/5uIovRZy55VIcLHa0H9RLv" data-roles="mastering"><img src="assets/img/music/analogi.jpg" alt="" loading="lazy"><span class="pl-t">Requiem<small>Analog I</small></span><span class="pl-r">Mastering</span></button></li>
+          <li><button data-embed="https://open.spotify.com/embed/album/5xquoRfTmcOK3hQ9mlxyRK" data-roles="mastering"><img src="assets/img/music/frida.jpg" alt="" loading="lazy"><span class="pl-t">Homecoming EP<small>Frida Schiavon</small></span><span class="pl-r">Mastering</span></button></li>
+          <li><button data-embed="https://open.spotify.com/embed/track/4zg7zAt57jMZ6VSKsb1u02" data-roles="mastering"><img src="assets/img/music/rosamipiel.jpg" alt="" loading="lazy"><span class="pl-t">Rosa Mi Piel<small>Charly V</small></span><span class="pl-r">Mastering</span></button></li>
+          <li><button data-embed="https://open.spotify.com/embed/track/7dlFXohdFplJuqadpOVou7" data-roles="mastering"><img src="assets/img/music/infierno.jpg" alt="" loading="lazy"><span class="pl-t">Infierno Entre Dos<small>uglyaguacate</small></span><span class="pl-r">Mastering</span></button></li>
+          <li><button data-embed="https://open.spotify.com/embed/track/1FK8lwnQvP70LpnFlvtx7n" data-roles="recording mastering"><img src="assets/img/music/luciddreams.jpg" alt="" loading="lazy"><span class="pl-t">Lucid Dreams<small>Sex and Cherries</small></span><span class="pl-r">Recording, Mastering</span></button></li>
+          <li><button data-embed="https://open.spotify.com/embed/track/6u3X6JlER8e0GyqctyiGIY" data-roles="recording mastering"><img src="assets/img/music/brokenheart.jpg" alt="" loading="lazy"><span class="pl-t">Broken Heart<small>Sex and Cherries</small></span><span class="pl-r">Rec. assistant, Mastering</span></button></li>
+          <!-- TODO(Sofia): the old site used Broken Heart's Spotify link here too. Paste the right track ID. -->
+          <li><button data-embed="https://open.spotify.com/embed/track/6u3X6JlER8e0GyqctyiGIY" data-roles="recording mastering"><img src="assets/img/music/bottomofthesea.jpg" alt="" loading="lazy"><span class="pl-t">Bottom of the Sea<small>Sex and Cherries</small></span><span class="pl-r">Rec. assistant, Mastering</span></button></li>
+          <li><button data-embed="https://open.spotify.com/embed/track/1cSsVaQqQa5AAaE6mmcV4M" data-roles="recording"><img src="assets/img/music/denalgas.jpg" alt="" loading="lazy"><span class="pl-t">Cascajo<small>De Nalgas</small></span><span class="pl-r">Rec. assistant</span></button></li>
+          <li><button data-embed="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1188257140&color=%23ff5500&auto_play=false&visual=true" data-roles="mixing"><img src="assets/img/music/bluekender.jpg" alt="" loading="lazy"><span class="pl-t">Juego del Amor<small>Blue Kender</small></span><span class="pl-r">Mixing</span></button></li>
+          <li><button data-embed="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1188257152&color=%23ff5500&auto_play=false&visual=true" data-roles="mixing"><img src="assets/img/music/bluekender.jpg" alt="" loading="lazy"><span class="pl-t">EULB<small>Blue Kender</small></span><span class="pl-r">Mixing</span></button></li>
+          <!-- TODO(Sofia): the old site used Juego del Amor's SoundCloud ID here too. Paste the right track ID. -->
+          <li><button data-embed="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1188257140&color=%23ff5500&auto_play=false&visual=true" data-roles="recording mixing"><img src="assets/img/music/tarrtrio.jpg" alt="" loading="lazy"><span class="pl-t">7<small>Tarr Trio</small></span><span class="pl-r">Recording, Mixing</span></button></li>
+          <li><button data-embed="https://open.spotify.com/embed/track/1hLFv8hqWXrkAIeMqDWEjH" data-roles="bass"><img src="assets/img/music/tvride.jpg" alt="" loading="lazy"><span class="pl-t">TV Ride<small>Dinnever King</small></span><span class="pl-r">Bass</span></button></li>
+          <li><button data-embed="https://open.spotify.com/embed/track/28MFHNB3agIsgJVgk0FbnY" data-roles="bass"><img src="assets/img/music/thegloom.jpg" alt="" loading="lazy"><span class="pl-t">The Gloom<small>Dinnever King</small></span><span class="pl-r">Bass</span></button></li>
+          <li><button data-embed="https://www.youtube-nocookie.com/embed/RuSRZaciA7Q" data-video data-roles="sound design"><img src="assets/img/music/valorant.jpg" alt="" loading="lazy"><span class="pl-t">Valorant redesign<small>Game Audio LATAM</small></span><span class="pl-r">Sound design</span></button></li>
+          <li><button data-embed="https://www.youtube-nocookie.com/embed/-VsSNjcGyuE" data-video data-roles="sound design"><img src="assets/img/music/roki.jpg" alt="" loading="lazy"><span class="pl-t">Roki redesign<small>Game Audio LATAM</small></span><span class="pl-r">Sound design</span></button></li>
+          <li><button data-embed="https://www.youtube-nocookie.com/embed/aSchaHG-GKU" data-video data-roles="sound design"><img src="assets/img/music/bee1.jpg" alt="" loading="lazy"><span class="pl-t">Bee 1<small>Pixel Game Jam</small></span><span class="pl-r">Sound design</span></button></li>
+        </ol>
+      </div>
+      <footer class="statusbar"><span data-amp-count>16 tracks</span><span>Mexico City · Barcelona · Graz</span></footer>
+    </section>
+
+    <!-- ===================== TEACHING ===================== -->
+    <section class="win" id="teaching" data-title="Teaching" data-icon="cap" data-x="0.40" data-y="0.22" data-w="560" aria-labelledby="teaching-h">
+      <div class="win-body">
+        <h2 id="teaching-h" class="sec-h">Teaching</h2>
+        <!-- TODO(Sofia): check the course names and add any I missed. -->
+        <ul class="rows">
+          <li><span class="row-date">2024 –</span><span><b>Teaching Assistant</b>, IEM · Kunstuniversität Graz<br>
+            <span class="muted">Musical Acoustics (strings, pipes, resonances, rooms and hearing) and courses in Sonic Interaction Design.</span></span></li>
+          <li><span class="row-date">2025</span><span><b>Workshop lead</b>, SMC 2025 Summer School, Graz<br>
+            <span class="muted">Sonification of Air Particles in Graz, with Katharina Groß-Vogt.</span></span></li>
+          <li><span class="row-date">2023</span><span><b>Teaching Assistant</b>, Universitat Pompeu Fabra<br>
+            <span class="muted">Signals and Systems I: intro to DSP for 2nd-year engineering students.</span></span></li>
+          <li><span class="row-date">2021 – 22</span><span><b>Teaching Assistant</b>, REC Música, Mexico City<br>
+            <span class="muted">Sound design for video games, machine learning for music.</span></span></li>
+        </ul>
+        <p class="tip">Try <button class="linklike" data-open="modes">Modes.exe</button> on the desktop. It's a plucked string from the first Musical Acoustics lessons.</p>
+      </div>
+    </section>
+
+    <!-- ===================== CV ===================== -->
+    <section class="win" id="cv" data-title="CV.pdf" data-icon="pdf" data-x="0.22" data-y="0.05" data-w="640" aria-labelledby="cv-h">
+      <div class="toolbar">
+        <a class="btn btn-primary" href="assets/cv/Sofia_Vallejo_CV.pdf" download>⤓ Download CV (PDF)</a>
+        <a class="btn" href="assets/cv/Sofia_Vallejo_CV.pdf" target="_blank" rel="noopener">Open in new tab</a>
+      </div>
+      <div class="win-body cv">
+        <h2 id="cv-h" class="visually-hidden">Curriculum vitae</h2>
+
+        <h3 class="sec-h">Education</h3>
+        <ul class="rows">
+          <li><span class="row-date">2024 –</span><span><b>PhD, Audio Engineering &amp; Acoustics / Sonic Interaction Design</b><br><span class="muted">Kunstuniversität Graz (KUG), IEM, Austria</span></span></li>
+          <li><span class="row-date">2022 – 24</span><span><b>MSc Sound and Music Computing</b><br><span class="muted">Universitat Pompeu Fabra, Barcelona</span></span></li>
+          <li><span class="row-date">2016 – 20</span><span><b>BSc Audio Engineering</b><br><span class="muted">REC Música, Centro de Estudios Musicales, Mexico City</span></span></li>
+        </ul>
+
+        <h3 class="sec-h">Experience</h3>
+        <ul class="rows">
+          <li><span class="row-date">2024 –</span><span><b>University Assistant &amp; TA</b>, IEM · KUG Graz</span></li>
+          <li><span class="row-date">2024</span><span><b>Operations Engineer</b>, BMAT Music Innovators, Barcelona</span></li>
+          <li><span class="row-date">2023 – 24</span><span><b>Intern Researcher</b>, Music Technology Group &amp; BMAT (LoudSense)</span></li>
+          <li><span class="row-date">2023</span><span><b>Teaching Assistant</b>, Universitat Pompeu Fabra</span></li>
+          <li><span class="row-date">2020 – 21</span><span><b>Studio Assistant</b>, Topetitud Estudio &amp; Woodlock Studios, Mexico City</span></li>
+          <li><span class="row-date">2017 –</span><span><b>Freelance audio engineer</b>: recording, mixing, mastering; bassist &amp; stagehand on tour around Mexico</span></li>
+        </ul>
+
+        <h3 class="sec-h">Awards</h3>
+        <ul class="rows">
+          <li><span class="row-date">2025</span><span><b>Best Student Paper Award</b>, ICAD 2025</span></li>
+          <li><span class="row-date">2× </span><span><b>Diversity Scholarship</b>, Audio Developer Conference</span></li>
+        </ul>
+
+        <h3 class="sec-h">Tools</h3>
+        <p class="taglist"><span>Python</span><span>C++ / JUCE</span><span>JavaScript / Web Audio</span><span>MATLAB</span><span>Lua</span><span>SuperCollider</span><span>Pure Data</span><span>Max/MSP</span><span>Pro Tools</span><span>Logic</span><span>Ableton</span><span>Reaper</span></p>
+
+        <h3 class="sec-h">Languages &amp; certificates</h3>
+        <p class="muted">Spanish (native) · English (C2) · German (B1) · Catalan (A2)<br>
+          Avid Pro Tools PT101 &amp; PT110 · IELTS Academic 8.0 · UNAM Digital Audio with Pure Data · IBM Python for Data Science</p>
+      </div>
+    </section>
+
+    <!-- ===================== FOTOS ===================== -->
+    <section class="win" id="fotos" data-title="Fotos" data-icon="camera" data-x="0.26" data-y="0.08" data-w="640" aria-labelledby="fotos-h">
+      <div class="win-body">
+        <h2 id="fotos-h" class="visually-hidden">Photos</h2>
+        <!--
+          To add a photo:
+          1. Put the image in assets/img/fotos/ (about 1600px wide is plenty).
+          2. Copy this line inside the <ul> below and change the file name and caption:
+             <li><button><img src="assets/img/fotos/my-photo.jpg" alt="what's in it" loading="lazy"><span>Caption</span></button></li>
+        -->
+        <ul class="fotos">
+        </ul>
+        <div class="fotos-empty">
+          <b>Film still developing…</b>
+          Photos go here soon.
+        </div>
+      </div>
+      <div class="viewer" hidden>
+        <img alt="">
+        <div class="viewer-bar">
+          <button class="btn" data-prev aria-label="Previous photo">◀</button>
+          <p data-caption></p>
+          <button class="btn" data-next aria-label="Next photo">▶</button>
+          <button class="btn" data-shut aria-label="Close photo">×</button>
+        </div>
+      </div>
+      <footer class="statusbar"><span data-foto-count>0 photos</span><span>shot by me</span></footer>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section class="win" id="contact" data-title="Contact" data-icon="mail" data-x="0.60" data-y="0.40" data-w="380" aria-labelledby="contact-h">
+      <div class="win-body">
+        <h2 id="contact-h" class="sec-h">Say hi</h2>
+        <p>For research, collaborations, students or a mix/master.</p>
+        <ul class="contact">
+          <li><span>Email</span><a href="mailto:vallejo@iem.at">vallejo@iem.at</a></li>
+          <li><span>GitHub</span><a href="https://github.com/sofiavallejob" target="_blank" rel="noopener">sofiavallejob</a></li>
+          <li><span>LinkedIn</span><a href="https://www.linkedin.com/in/sofiavallejo/" target="_blank" rel="noopener">sofiavallejo</a></li>
+          <li><span>Office</span><span>IEM, Inffeldgasse 10/3, Graz</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================== MODES.EXE ===================== -->
+    <section class="win" id="modes" data-title="Modes.exe" data-icon="string" data-x="0.34" data-y="0.30" data-w="560" aria-labelledby="modes-h">
+      <div class="win-body modes">
+        <h2 id="modes-h" class="visually-hidden">Plucked string modes</h2>
+        <canvas class="modes-canvas" width="520" height="150" aria-label="Animated vibrating string with its harmonics"></canvas>
+        <div class="modes-ctrl">
+          <label>Pluck point <output data-pos-out>1/5</output>
+            <input type="range" min="0.05" max="0.5" step="0.005" value="0.2" data-pos>
+          </label>
+          <label>Pitch <output data-f0-out>110 Hz</output>
+            <input type="range" min="55" max="330" step="1" value="110" data-f0>
+          </label>
+          <button class="btn btn-primary" data-pluck>Pluck ♪</button>
+        </div>
+        <div class="modes-spec" data-spec aria-hidden="true"></div>
+        <p class="muted small">If you pluck a string at 1/<i>n</i> of its length, every <i>n</i>-th harmonic is gone. Pluck at 1/5 and the 5th and 10th disappear. Move the pluck point toward the middle and the sound gets hollower: only odd harmonics are left.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Taskbar -->
+  <div class="taskbar">
+    <button class="start" aria-expanded="false" aria-controls="startmenu"><span class="start-logo" aria-hidden="true"></span>Start</button>
+    <div class="tasks" aria-label="Open windows"></div>
+    <div class="tray">
+      <button class="tray-btn tray-radio" data-radio aria-pressed="false" title="Background music">♫</button>
+      <button class="tray-btn" data-sound aria-pressed="true" title="UI sounds">🔊</button>
+      <span class="clock" data-clock title="Time in Graz">--:--</span>
+    </div>
+  </div>
+
+  <!-- Background music: starts on the visitor's first click (browsers block sound before that).
+       To change the song, change data-video to another YouTube video ID. -->
+  <div class="radio" data-video="9TGhIqmpdgo" aria-label="Background music">
+    <div class="radio-bar">
+      <span class="radio-dot" aria-hidden="true"></span>
+      <span class="radio-t">now playing · <b>Salsa Colombiana, Vinyl Session</b> · LAFLOR</span>
+      <button class="radio-x" data-radio-stop aria-label="Stop background music">×</button>
+    </div>
+    <div class="radio-vid"><div id="yt"></div><p class="radio-note" hidden>YouTube doesn't play when the site is opened as a file. Once it's online (or on a local server), the music works.</p></div>
+    <div class="radio-ctrl">
+      <button class="radio-b" data-radio-play aria-label="Pause">❚❚</button>
+      <button class="radio-b" data-radio-mute aria-label="Mute">🔊</button>
+      <input type="range" min="0" max="100" value="40" data-radio-vol aria-label="Volume">
+    </div>
+  </div>
+
+  <!-- Entry screen: the visitor picks sound on/off (once per visit) -->
+  <div id="enter" hidden>
+    <div class="enter-box" role="dialog" aria-modal="true" aria-labelledby="enter-h">
+      <div class="titlebar"><span class="t-name">Welcome</span></div>
+      <div class="enter-body">
+        <h1 id="enter-h">Welcome!</h1>
+        <p class="enter-sub">Want sound? There's salsa on vinyl.</p>
+        <div class="enter-btns">
+          <button class="btn btn-primary" data-enter="on">♫ Sound on</button>
+          <button class="btn" data-enter="off">Sound off</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="startmenu" class="startmenu" hidden>
+    <div class="sm-side"><span>Sofia <b>Vallejo</b></span></div>
+    <ul>
+      <li><button data-open="about"    data-icon="note">About</button></li>
+      <li><button data-open="research" data-icon="folder">Research</button></li>
+      <li><button data-open="projects" data-icon="folderblue">Projects</button></li>
+      <li><button data-open="music"    data-icon="cd">Music</button></li>
+      <li><button data-open="teaching" data-icon="cap">Teaching</button></li>
+      <li><button data-open="fotos"    data-icon="camera">Fotos</button></li>
+      <li><button data-open="contact"  data-icon="mail">Contact</button></li>
+      <li><button data-open="modes"    data-icon="string">Modes.exe</button></li>
+      <li class="sm-sep"></li>
+      <li><a href="assets/cv/Sofia_Vallejo_CV.pdf" download data-icon="pdf">Download CV</a></li>
+      <li><button data-shutdown data-icon="power">Shut down…</button></li>
+    </ul>
+  </div>
+
+  <div id="shutdown" hidden>
+    <p>It's now safe to turn off<br>your computer.</p>
+    <small>(click anywhere to come back)</small>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
