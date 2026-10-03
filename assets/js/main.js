@@ -749,6 +749,7 @@ const Radio = (() => {
   const muteBtn = $('[data-radio-mute]');
   const vol = $('[data-radio-vol]');
   const id = box.dataset.video;
+  const start = +box.dataset.start || 0;
   let player = null, ready = false, wantPlay = false, playing = false, muted = false;
 
   vol.value = store.get('sofiaos-volume') ?? 40;
@@ -761,11 +762,11 @@ const Radio = (() => {
     if (isFile) return;
     player = new YT.Player('yt', {
       videoId: id,
-      playerVars: { autoplay: 0, controls: 0, loop: 1, playlist: id, modestbranding: 1, playsinline: 1, rel: 0, origin: location.origin },
+      playerVars: { autoplay: 0, controls: 0, start, modestbranding: 1, playsinline: 1, rel: 0, origin: location.origin },
       events: {
         onReady: () => { ready = true; player.setVolume(+vol.value); if (wantPlay) play(); },
         onStateChange: e => {
-          if (e.data === YT.PlayerState.ENDED) { player.seekTo(0); player.playVideo(); }
+          if (e.data === YT.PlayerState.ENDED) { player.seekTo(start, true); player.playVideo(); } // loop back to the start point
           if (e.data === YT.PlayerState.PLAYING) sync(true);
           if (e.data === YT.PlayerState.PAUSED) sync(false);
         },
