@@ -33,7 +33,7 @@
     <button class="icon" data-open="cv"       data-icon="pdf"><span>CV.pdf</span></button>
     <button class="icon" data-open="fotos"    data-icon="camera"><span>Fotos</span></button>
     <button class="icon" data-open="contact"  data-icon="mail"><span>Contact</span></button>
-    <button class="icon" data-open="modes"    data-icon="string"><span>Modes.exe</span></button>
+    <button class="icon" data-open="mines"    data-icon="mine"><span>Buscaminas</span></button>
   </nav>
 
   <main id="windows">
@@ -49,12 +49,11 @@
           <div class="about-text">
             <h1 id="about-h">Hola, I'm Sofia.</h1>
             <p class="lede">Audio engineer and researcher from Mexico City, based in Graz, Austria. I turn data into sound and build tools for doing it.</p>
-            <p>I'm a PhD candidate and University Assistant in <strong>Sonic Interaction Design</strong> at the
+            <p>I'm a PhD candidate and University Assistant in <strong>Musical Acoustics</strong> at the
               <a href="https://iem.kug.ac.at/" target="_blank" rel="noopener">Institute of Electronic Music and Acoustics (IEM)</a>,
-              University of Music and Performing Arts Graz. My research is about <strong>sonification</strong>: how we listen to data, and the software we use to make that possible.</p>
-            <p>I also teach as a teaching assistant, including <strong>Musical Acoustics</strong>, where we look at strings, pipes, rooms and ears.</p>
+              University of Music and Performing Arts Graz. My research is about <strong>sonification</strong> and the software we use to create sonifications.</p>
             <p>Our ICAD 2025 paper on sonification software won the <strong>Best Student Paper Award</strong>, and I've received the Audio Developer Conference <strong>Diversity Scholarship</strong> twice.</p>
-            <p>Before Graz I did an MSc in Sound and Music Computing at the Music Technology Group (UPF, Barcelona), where I modelled analog synth oscillators with neural networks. Before <em>that</em>, I spent years in studios and on stages in Mexico City: recording, mixing, mastering, playing bass and running front-of-house.</p>
+            <p>Before Graz I did an MSc in Sound and Music Computing at the Universitat Pompeu Fabra in Barcelona, Spain, where I modelled analog synth oscillators with neural networks. Before <em>that</em>, I spent a few years in studios and on stages in Mexico.</p>
           </div>
         </div>
         <dl class="facts">
@@ -65,10 +64,9 @@
         </dl>
 
         <h2 class="sec-h offclock">Off the clock</h2>
-        <p>Mostly cooking. I love food and treat the kitchen as a temple. I also keep a garden going, take photos (some are in <button class="linklike" data-open="fotos">Fotos</button>), and lose whole weekends to open-world games, preferably ones with horses.</p>
-        <!-- More ideas: an album on repeat, the dish you're proudest of, what's growing in the garden, your synth or bass. -->
+        <p>Mostly something food related. I also keep a garden going, take photos (some are in <button class="linklike" data-open="fotos">Fotos</button>), and spend a lot of time playing games.</p>
         <dl class="favs">
-          <div><dt>Favourite game</dt><dd>Red Dead Redemption</dd></div>
+          <div><dt>Favourite game</dt><dd>Red Dead Redemption 2</dd></div>
           <div><dt>Favourite film</dt><dd>Star Wars: The Empire Strikes Back</dd></div>
         </dl>
         <div class="btn-row">
@@ -91,9 +89,9 @@
           <li class="pub todo">
             <div class="pub-year">2026</div>
             <div class="pub-main">
-              <h3 class="pub-title">[ICAD 2026 paper title] <span class="badge">forthcoming</span></h3>
-              <p class="pub-authors"><b>S. Vallejo Budziszewski</b>, [co-authors]</p>
-              <p class="pub-venue">Proc. 31st International Conference on Auditory Display (ICAD 2026)</p>
+              <h3 class="pub-title">Rule-Based Framework for Automated Audification <span class="badge">forthcoming</span></h3>
+              <p class="pub-authors"><b>S. Vallejo Budziszewski</b>, K. Gross-Vogt, R. Höldrich</p>
+              <p class="pub-venue">Proc. 31st International Conference on Auditory Display (ICAD 2026), Bielefeld, Germany</p>
             </div>
           </li>
 
@@ -101,8 +99,8 @@
           <li class="pub todo">
             <div class="pub-year">2026</div>
             <div class="pub-main">
-              <h3 class="pub-title">[Forum Acusticum paper title] <span class="badge">forthcoming</span></h3>
-              <p class="pub-authors"><b>S. Vallejo Budziszewski</b>, [co-authors]</p>
+              <h3 class="pub-title">Natural Language Interaction for Morphology-Aware Audification <span class="badge">forthcoming</span></h3>
+              <p class="pub-authors"><b>S. Vallejo Budziszewski</b>, K. Gross-Vogt</p>
               <p class="pub-venue">Proc. Forum Acusticum Euronoise 2026, Graz, Austria</p>
             </div>
           </li>
@@ -417,7 +415,6 @@
           <li><span class="row-date">2021 – 22</span><span><b>Teaching Assistant</b>, REC Música, Mexico City<br>
             <span class="muted">Sound design for video games, machine learning for music.</span></span></li>
         </ul>
-        <p class="tip">Try <button class="linklike" data-open="modes">Modes.exe</button> on the desktop. It's a plucked string from the first Musical Acoustics lessons.</p>
       </div>
     </section>
 
@@ -505,23 +502,23 @@
       </div>
     </section>
 
-    <!-- ===================== MODES.EXE ===================== -->
-    <section class="win" id="modes" data-title="Modes.exe" data-icon="string" data-x="0.34" data-y="0.30" data-w="560" aria-labelledby="modes-h">
-      <div class="win-body modes">
-        <h2 id="modes-h" class="visually-hidden">Plucked string modes</h2>
-        <canvas class="modes-canvas" width="520" height="150" aria-label="Animated vibrating string with its harmonics"></canvas>
-        <div class="modes-ctrl">
-          <label>Pluck point <output data-pos-out>1/5</output>
-            <input type="range" min="0.05" max="0.5" step="0.005" value="0.2" data-pos>
-          </label>
-          <label>Pitch <output data-f0-out>110 Hz</output>
-            <input type="range" min="55" max="330" step="1" value="110" data-f0>
-          </label>
-          <button class="btn btn-primary" data-pluck>Pluck ♪</button>
-        </div>
-        <div class="modes-spec" data-spec aria-hidden="true"></div>
-        <p class="muted small">If you pluck a string at 1/<i>n</i> of its length, every <i>n</i>-th harmonic is gone. Pluck at 1/5 and the 5th and 10th disappear. Move the pluck point toward the middle and the sound gets hollower: only odd harmonics are left.</p>
+    <!-- ===================== BUSCAMINAS ===================== -->
+    <section class="win win-mines" id="mines" data-title="Buscaminas" data-icon="mine" data-x="0.40" data-y="0.12" data-w="300" aria-labelledby="mines-h">
+      <div class="toolbar" role="toolbar" aria-label="Difficulty">
+        <h2 id="mines-h" class="visually-hidden">Buscaminas (Minesweeper)</h2>
+        <button class="chip" aria-pressed="true" data-level="easy">Fácil</button>
+        <button class="chip" aria-pressed="false" data-level="medium">Medio</button>
+        <button class="chip mines-flagmode" aria-pressed="false" data-flagmode title="Tap to place flags">🚩 Flags</button>
       </div>
+      <div class="win-body mines-body">
+        <div class="mines-head">
+          <output class="lcd" data-left aria-label="Mines left">010</output>
+          <button class="mines-face" data-face aria-label="New game">😸</button>
+          <output class="lcd" data-time aria-label="Seconds">000</output>
+        </div>
+        <div class="mines-grid" data-grid aria-label="Minefield"></div>
+      </div>
+      <footer class="statusbar"><span data-mines-status>Click to dig · right-click to flag</span><span data-best>best: –</span></footer>
     </section>
 
   </main>
@@ -540,7 +537,7 @@
   <!-- Background music: starts on the visitor's first click (browsers block sound before that).
        To change the song, change data-video to another YouTube video ID.
        data-start is where it starts (and loops back to), in seconds. -->
-  <div class="radio" data-video="9TGhIqmpdgo" data-start="60" aria-label="Background music">
+  <div class="radio" data-video="9TGhIqmpdgo" data-start="33" aria-label="Background music">
     <div class="radio-bar">
       <span class="radio-dot" aria-hidden="true"></span>
       <span class="radio-t">now playing · <b>Salsa Colombiana, Vinyl Session</b> · LAFLOR</span>
@@ -579,7 +576,7 @@
       <li><button data-open="teaching" data-icon="cap">Teaching</button></li>
       <li><button data-open="fotos"    data-icon="camera">Fotos</button></li>
       <li><button data-open="contact"  data-icon="mail">Contact</button></li>
-      <li><button data-open="modes"    data-icon="string">Modes.exe</button></li>
+      <li><button data-open="mines"    data-icon="mine">Buscaminas</button></li>
       <li class="sm-sep"></li>
       <li><a href="assets/cv/Sofia_Vallejo_CV.pdf" download data-icon="pdf">Download CV</a></li>
       <li><button data-shutdown data-icon="power">Shut down…</button></li>

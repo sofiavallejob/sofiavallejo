@@ -11,7 +11,7 @@
   --icon-ink: #ffffff;
   --icon-shadow: rgba(20,16,50,.9);
 
-  /* little screens (player, modes, placeholders) */
+  /* little screens (player, placeholders) */
   --desk: #0f1a24;
   --phosphor: #6dffa8;
   --phosphor-dim: rgba(109, 255, 168, .12);
@@ -297,15 +297,36 @@ details p { margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--ch
 .contact li > span:first-child { font: 13px/1.6 var(--font-ui); color: var(--muted); }
 .tip { margin-top: 18px; padding: 10px 12px; font-size: 14px; background: color-mix(in srgb, #ffe98a 45%, var(--paper)); box-shadow: var(--bevel-in); }
 
-/* ---------- modes.exe ---------- */
-.modes-canvas { width: 100%; height: auto; background: var(--desk); box-shadow: var(--bevel-in); }
-.modes-ctrl { display: flex; flex-wrap: wrap; align-items: end; gap: 14px 20px; margin: 14px 0 10px; }
-.modes-ctrl label { display: flex; flex-direction: column; gap: 4px; font: 14px/1 var(--font-ui); flex: 1; min-width: 150px; }
-.modes-ctrl output { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); }
-.modes-ctrl input[type=range] { width: 100%; accent-color: var(--title-a); }
-.modes-spec { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; height: 70px; align-items: end; padding: 6px; background: var(--desk); box-shadow: var(--bevel-in); margin-bottom: 10px; }
-.modes-spec div { background: var(--phosphor); box-shadow: 0 0 6px rgba(109,255,168,.5); min-height: 1px; position: relative; transition: height .15s; }
-.modes-spec div::after { content: attr(data-n); position: absolute; bottom: -1px; left: 0; right: 0; text-align: center; font: 10px/1 var(--font-mono); color: var(--desk); }
+/* ---------- buscaminas ---------- */
+.win-mines { width: auto !important; }
+.mines-body { padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; background: var(--chrome); }
+.mines-head { align-self: stretch; display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; box-shadow: var(--bevel-in); }
+.lcd { min-width: 52px; padding: 2px 5px; background: #1b1530; color: #ff8fc4; text-shadow: 0 0 6px rgba(255,143,196,.7); font: 600 24px/1 var(--font-mono); letter-spacing: .04em; text-align: center; box-shadow: var(--bevel-in); }
+.mines-face { width: 40px; height: 40px; padding: 0; border: 0; cursor: pointer; background: var(--chrome); box-shadow: var(--bevel-out); font-size: 24px; line-height: 1; }
+.mines-face:active { box-shadow: var(--bevel-in); }
+.mines-grid { --cell: 26px; display: grid; box-shadow: var(--bevel-in); padding: 3px; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.mines-grid button {
+  width: var(--cell); height: var(--cell); padding: 0; border: 0; cursor: pointer;
+  background: #ddd3f5; box-shadow: inset -2px -2px #9d90c4, inset 2px 2px #fff;
+  font: 700 calc(var(--cell) * .62) / 1 var(--font-ui); color: var(--ink);
+  display: grid; place-items: center;
+}
+.mines-grid button:focus-visible { outline: 2px dotted var(--title-b); outline-offset: -3px; }
+.mines-grid button.open { cursor: default; box-shadow: none; background: var(--paper); outline: 1px solid color-mix(in srgb, var(--chrome-lo) 45%, transparent); outline-offset: -1px; }
+.mines-grid button.boom { background: #ff8fc4; }
+.mines-grid button.wrong { text-decoration: line-through; }
+.mines-grid .n1 { color: #4f5fd6; } .mines-grid .n2 { color: #2e9d6a; } .mines-grid .n3 { color: #d6457a; } .mines-grid .n4 { color: #6a3fb8; }
+.mines-grid .n5 { color: #b5562a; } .mines-grid .n6 { color: #1f8a8a; } .mines-grid .n7 { color: var(--ink); } .mines-grid .n8 { color: var(--muted); }
+@media (prefers-color-scheme: dark) {
+  .mines-grid .n1 { color: #9fb0ff; } .mines-grid .n2 { color: #7fe0b0; } .mines-grid .n3 { color: #ff9cc6; } .mines-grid .n4 { color: #c7a8ff; }
+  .mines-grid .n5 { color: #ffb38a; } .mines-grid .n6 { color: #7fe3e3; }
+}
+.mines-flagmode { display: none; }
+@media (hover: none) { .mines-flagmode { display: inline-block; } }
+@media (max-width: 760px) {
+  .win-mines .mines-body { justify-content: flex-start; }
+  .mines-grid { --cell: min(30px, calc((100vw - 40px) / var(--cols))); }
+}
 
 /* ---------- taskbar ---------- */
 .taskbar {
@@ -439,7 +460,7 @@ details p { margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--ch
 .radio-vid iframe, .radio-vid #yt { display: block; width: 100%; height: 100%; border: 0; }
 .tray-radio { filter: none; font-family: var(--font-ui); font-size: 16px; }
 .tray-radio[aria-pressed="false"] { opacity: .45; }
-@media (max-width: 760px) { .radio { width: 180px; } }
+@media (max-width: 760px) { .radio { width: 150px; } .radio-t { font-size: 11px; } .radio-note { font-size: 10px; padding: 4px; } }
 @media (prefers-reduced-motion: reduce) { .radio-dot { animation: none; } }
 .radio-ctrl { display: flex; align-items: center; gap: 4px; margin-top: 3px; }
 .radio-b { width: 28px; height: 22px; padding: 0; border: 0; cursor: pointer; background: var(--chrome); color: var(--ink); box-shadow: var(--bevel-out); font: 11px/1 var(--font-ui); flex: none; }

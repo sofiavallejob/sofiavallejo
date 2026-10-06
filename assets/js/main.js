@@ -1,4 +1,4 @@
-/* Sofia Vallejo's site: window manager, wallpaper, music player and Modes.exe */
+/* Sofia Vallejo's site: window manager, wallpaper, music player and Buscaminas */
 'use strict';
 
 document.body.classList.remove('no-js');
@@ -22,17 +22,6 @@ const PALETTE = {
   k: '#14130f', w: '#fbf8ee', g: '#a9a596', d: '#3a3a44', y: '#f2c94c', Y: '#c99a1e',
   b: '#6f9cf2', B: '#22398f', r: '#e8411f', G: '#6dffa8', c: '#8fd3ff', p: '#f59ad7',
 };
-
-function sineIcon() {
-  const rows = Array.from({ length: 16 }, () => Array(16).fill('d'));
-  for (let i = 0; i < 16; i++) { rows[0][i] = rows[15][i] = rows[i][0] = rows[i][15] = 'k'; }
-  for (let x = 1; x < 15; x++) {
-    const y = Math.round(7.5 - 4.5 * Math.sin(((x - 1) / 13) * Math.PI * 2) * Math.exp(-(x - 1) / 22));
-    rows[y][x] = 'G';
-  }
-  for (let x = 1; x < 15; x += 2) if (rows[8][x] === 'd') rows[8][x] = 'g';
-  return rows.map(r => r.join(''));
-}
 
 const ICONS = {
   note: [
@@ -83,7 +72,12 @@ const ICONS = {
     'kgggkbbbbbbkgggk', 'kgggkbbbbbbkgggk', 'kggggkkkkkkggggk', 'kggggggggggggggk',
     'kkkkkkkkkkkkkkkk', '................', '................', '................',
   ],
-  string: sineIcon(),
+  mine: [
+    '............y...', '...........yry..', '..........k.y...', '.........k......',
+    '.....kkkkk......', '...kkkkkkkkk....', '..kkwwkkkkkkk...', '..kwwkkkkkkkk...',
+    '.kkwkkkkkkkkkk..', '.kkkkkkkkkkkkk..', '.kkkkkkkkkkkkk..', '..kkkkkkkkkkk...',
+    '..kkkkkkkkkkk...', '...kkkkkkkkk....', '.....kkkkk......', '................',
+  ],
 };
 ICONS.folderblue = ICONS.folder.map(r => r.replace(/y/g, 'b').replace(/Y/g, 'B'));
 
@@ -195,7 +189,7 @@ function open(id, { quiet = false } = {}) {
   if (!wasOpen && !reducedMotion) { win.classList.remove('pop'); void win.offsetWidth; win.classList.add('pop'); }
   if (!wasOpen && !quiet) blip('open');
   focus(id);
-  if (id === 'modes') Modes.start();
+  if (id === 'mines') Mines.start();
   if (id === 'projects') Choir.start();
 }
 
@@ -224,7 +218,7 @@ function close(id) {
   task.hidden = true;
   task.setAttribute('aria-pressed', 'false');
   if (id === 'music') Amp.stop();
-  if (id === 'modes') Modes.stop();
+  if (id === 'mines') Mines.stop();
   if (id === 'projects') Choir.stop();
   blip('close');
   focusTopmost();
@@ -615,125 +609,198 @@ const Amp = (() => {
 })();
 
 /* ------------------------------------------------------------
-   Modes.exe: an ideal plucked string
-   y(x,t) = Σ aₙ sin(nπx) cos(ωₙt) e^(−t/τₙ),  aₙ ∝ sin(nπp) / n²
+   Buscaminas (Minesweeper). First click is always safe.
+   Click: dig · right-click / long-press / flag mode: flag ·
+   click a number whose flags are all placed: clear around it.
    ------------------------------------------------------------ */
-const Modes = (() => {
-  const win = $('#modes');
-  const cv = $('.modes-canvas', win);
-  const ctx = cv.getContext('2d');
-  const pos = $('[data-pos]', win), posOut = $('[data-pos-out]', win);
-  const f0 = $('[data-f0]', win), f0Out = $('[data-f0-out]', win);
-  const spec = $('[data-spec]', win);
-  const NH = 12;
-  let amps = [], tPluck = -1, raf = 0, running = false;
+const Mines = (() => {
+  const win = $('#mines');
+  const grid = $('[data-grid]', win);
+  const face = $('[data-face]', win);
+  const left = $('[data-left]', win);
+  const time = $('[data-time]', win);
+  const status = $('[data-mines-status]', win);
+  const bestOut = $('[data-best]', win);
+  const flagBtn = $('[data-flagmode]', win);
+  const LEVELS = { easy: { r: 9, c: 9, m: 10 }, medium: { r: 16, c: 16, m: 40 } };
+  const FACE = { idle: '😸', press: '😮', lost: '🙀', won: '😺' };
+  let level = 'easy', L, cells, btns, started, over, opened, flags, secs, timer = 0, flagMode = false;
 
-  spec.innerHTML = Array.from({ length: NH }, (_, i) => `<div data-n="${i + 1}"></div>`).join('');
-  const specBars = $$('div', spec);
+  const pad = n => String(Math.max(-99, Math.min(999, n))).padStart(3, '0');
+  const neighbours = i => {
+    const r = Math.floor(i / L.c), c = i % L.c, out = [];
+    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+      const rr = r + dr, cc = c + dc;
+      if ((dr || dc) && rr >= 0 && rr < L.r && cc >= 0 && cc < L.c) out.push(rr * L.c + cc);
+    }
+    return out;
+  };
 
-  function compute() {
-    const p = +pos.value;
-    amps = Array.from({ length: NH }, (_, i) => {
-      const n = i + 1;
-      return (2 / (n * n * Math.PI * Math.PI * p * (1 - p))) * Math.sin(n * Math.PI * p);
+  function showBest() {
+    const b = store.get('sofia-mines-best-' + level);
+    bestOut.textContent = b ? `best: ${b}s` : 'best: –';
+  }
+
+  function newGame() {
+    clearInterval(timer); timer = 0;
+    L = LEVELS[level];
+    cells = Array.from({ length: L.r * L.c }, () => ({ mine: false, open: false, flag: false, n: 0 }));
+    started = false; over = false; opened = 0; flags = 0; secs = 0;
+    grid.style.gridTemplateColumns = `repeat(${L.c}, var(--cell))`;
+    grid.style.setProperty('--cols', L.c);
+    grid.innerHTML = '';
+    btns = cells.map((_, i) => {
+      const b = document.createElement('button');
+      b.dataset.i = i;
+      b.setAttribute('aria-label', `Row ${Math.floor(i / L.c) + 1}, column ${i % L.c + 1}: hidden`);
+      grid.append(b);
+      return b;
     });
-    const peak = Math.max(...amps.map(Math.abs));
-    specBars.forEach((bar, i) => { bar.style.height = Math.max(1, Math.abs(amps[i]) / peak * 100) + '%'; });
-    const inv = 1 / p, near = Math.round(inv);
-    posOut.textContent = Math.abs(inv - near) < 0.06 ? `1/${near} of the length` : `${(p * 100).toFixed(0)}% of the length`;
-    f0Out.textContent = `${f0.value} Hz`;
+    face.textContent = FACE.idle;
+    left.textContent = pad(L.m);
+    time.textContent = pad(0);
+    status.textContent = matchMedia('(hover: none)').matches ? 'Tap to dig · long-press to flag' : 'Click to dig · right-click to flag';
+    showBest();
   }
 
-  function shape(x, t) {
-    let y = 0;
-    for (let i = 0; i < NH; i++) {
-      const n = i + 1;
-      const decay = t < 0 ? 1 : Math.exp(-t / (2.4 / (1 + 0.3 * n)));
-      const osc = t < 0 ? 1 : Math.cos(n * 2 * Math.PI * 0.9 * t);
-      y += amps[i] * Math.sin(n * Math.PI * x) * osc * decay;
+  function layMines(safe) {
+    const banned = new Set([safe, ...neighbours(safe)]);
+    let placed = 0;
+    while (placed < L.m) {
+      const i = Math.floor(Math.random() * cells.length);
+      if (cells[i].mine || banned.has(i)) continue;
+      cells[i].mine = true; placed++;
     }
-    return y;
+    cells.forEach((cell, i) => { cell.n = neighbours(i).filter(k => cells[k].mine).length; });
+    started = true;
+    timer = setInterval(() => { secs++; time.textContent = pad(secs); }, 1000);
   }
 
-  function draw() {
-    const W = cv.width, H = cv.height, pad = 22, mid = H / 2;
-    ctx.clearRect(0, 0, W, H);
-    // bridge + nut
-    ctx.fillStyle = '#a9a596';
-    ctx.fillRect(pad - 6, mid - 18, 4, 36);
-    ctx.fillRect(W - pad + 2, mid - 18, 4, 36);
-    const t = tPluck < 0 ? -1 : (performance.now() - tPluck) / 1000;
-    const k = (H / 2 - 16) / 1.05;
-    ctx.beginPath();
-    for (let i = 0; i <= 200; i++) {
-      const x = i / 200;
-      const y = mid - shape(x, t) * k * (t < 0 ? 0.0 : 1) - (t < 0 ? idleShape(x) * k : 0);
-      const px = pad + x * (W - 2 * pad);
-      i ? ctx.lineTo(px, y) : ctx.moveTo(px, y);
+  function paint(i) {
+    const cell = cells[i], b = btns[i];
+    b.className = '';
+    b.textContent = '';
+    if (cell.open) {
+      b.classList.add('open');
+      if (cell.mine) b.textContent = '💣';
+      else if (cell.n) { b.textContent = cell.n; b.classList.add('n' + cell.n); }
+      b.setAttribute('aria-label', `${cell.mine ? 'mine' : cell.n || 'empty'}`);
+    } else if (cell.flag) {
+      b.textContent = '🚩';
+      b.setAttribute('aria-label', 'flagged');
+    } else b.setAttribute('aria-label', 'hidden');
+  }
+
+  function open(i) {
+    const stack = [i];
+    while (stack.length) {
+      const k = stack.pop(), cell = cells[k];
+      if (cell.open || cell.flag) continue;
+      cell.open = true; opened++;
+      paint(k);
+      if (!cell.mine && cell.n === 0) stack.push(...neighbours(k));
     }
-    ctx.strokeStyle = '#6dffa8';
-    ctx.lineWidth = 2;
-    ctx.shadowColor = '#6dffa8';
-    ctx.shadowBlur = 8;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-    // pluck marker
-    const px = pad + (+pos.value) * (W - 2 * pad);
-    ctx.fillStyle = '#e8411f';
-    ctx.beginPath(); ctx.arc(px, 12, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.font = '11px "IBM Plex Mono", monospace';
-    ctx.fillStyle = '#a9a596';
-    ctx.fillText(t < 0 ? 'click the string or press Pluck' : `t = ${t.toFixed(1)} s`, pad, H - 8);
   }
 
-  // Before plucking, show the string pulled into a triangle at the pluck point
-  function idleShape(x) {
-    const p = +pos.value, h = 0.9;
-    return x < p ? h * x / p : h * (1 - x) / (1 - p);
+  function dig(i) {
+    if (over) return;
+    const cell = cells[i];
+    if (!started) layMines(i);
+    if (cell.flag) return;
+    if (cell.open) { // chord
+      const ns = neighbours(i);
+      if (cell.n && ns.filter(k => cells[k].flag).length === cell.n) ns.forEach(k => { if (!cells[k].flag && !cells[k].open) reveal(k); });
+      return;
+    }
+    reveal(i);
   }
 
-  function pluck() {
-    compute();
-    tPluck = performance.now();
-    try {
-      const ctxA = audio();
-      const out = ctxA.createGain();
-      out.gain.value = 0.22;
-      out.connect(ctxA.destination);
-      const peak = Math.max(...amps.map(Math.abs));
-      const now = ctxA.currentTime;
-      amps.forEach((a, i) => {
-        const n = i + 1, f = n * +f0.value;
-        if (f > 9000 || Math.abs(a) / peak < 0.004) return;
-        const o = ctxA.createOscillator(), g = ctxA.createGain();
-        o.frequency.value = f * (1 + 0.0004 * n * n); // a touch of stiffness
-        const tau = 2.4 / (1 + 0.3 * n);
-        g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(Math.abs(a) / peak, now + 0.004);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + tau * 4);
-        o.connect(g).connect(out);
-        o.start(now); o.stop(now + tau * 4 + 0.05);
-      });
-    } catch { /* silent string */ }
+  function reveal(i) {
+    if (over) return;
+    if (cells[i].mine) return lose(i);
+    open(i);
+    if (opened === cells.length - L.m) win_();
   }
 
-  function loop() { draw(); raf = requestAnimationFrame(loop); }
+  function lose(i) {
+    over = true; clearInterval(timer);
+    cells.forEach((cell, k) => {
+      if (cell.mine && !cell.flag) { cell.open = true; paint(k); }
+      if (!cell.mine && cell.flag) btns[k].classList.add('wrong');
+    });
+    btns[i].classList.add('boom');
+    face.textContent = FACE.lost;
+    status.textContent = 'Boom. Click the cat to try again.';
+    blip('close');
+  }
 
-  pos.addEventListener('input', () => { compute(); tPluck = -1; if (!running) draw(); });
-  f0.addEventListener('input', compute);
-  $('[data-pluck]', win).addEventListener('click', pluck);
-  cv.addEventListener('click', e => {
-    const r = cv.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width;
-    pos.value = Math.min(0.95, Math.max(0.05, x > 0.5 ? 1 - x : x));
-    pluck();
+  function win_() {
+    over = true; clearInterval(timer);
+    cells.forEach((cell, k) => { if (cell.mine && !cell.flag) { cell.flag = true; paint(k); } });
+    left.textContent = pad(0);
+    face.textContent = FACE.won;
+    const key = 'sofia-mines-best-' + level, best = +store.get(key) || Infinity;
+    if (secs < best) store.set(key, secs);
+    status.textContent = secs < best ? `New best: ${secs}s!` : `Cleared in ${secs}s`;
+    showBest();
+    blip('open');
+  }
+
+  function flag(i) {
+    const cell = cells[i];
+    if (over || cell.open) return;
+    cell.flag = !cell.flag;
+    flags += cell.flag ? 1 : -1;
+    left.textContent = pad(L.m - flags);
+    paint(i);
+  }
+
+  // Mouse, touch and keyboard
+  let pressTimer = 0, longPressed = false;
+  grid.addEventListener('pointerdown', e => {
+    const b = e.target.closest('button');
+    if (!b || over) return;
+    if (e.button === 0) face.textContent = FACE.press;
+    longPressed = false;
+    if (e.pointerType !== 'mouse') pressTimer = setTimeout(() => { longPressed = true; flag(+b.dataset.i); navigator.vibrate?.(15); }, 420);
+  });
+  const release = () => { clearTimeout(pressTimer); if (!over) face.textContent = FACE.idle; };
+  grid.addEventListener('pointerup', release);
+  grid.addEventListener('pointerleave', release);
+  grid.addEventListener('pointercancel', release);
+  grid.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b || longPressed) return;
+    const i = +b.dataset.i;
+    flagMode && !cells[i].open ? flag(i) : dig(i);
+  });
+  grid.addEventListener('contextmenu', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    e.preventDefault();
+    flag(+b.dataset.i);
+  });
+  grid.addEventListener('keydown', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    const i = +b.dataset.i;
+    const move = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -L.c, ArrowDown: L.c }[e.key];
+    if (move !== undefined) { e.preventDefault(); btns[Math.max(0, Math.min(cells.length - 1, i + move))].focus(); }
+    if (e.key === 'f' || e.key === 'F') flag(i);
   });
 
-  compute();
-  draw();
+  face.addEventListener('click', newGame);
+  flagBtn.addEventListener('click', () => { flagMode = !flagMode; flagBtn.setAttribute('aria-pressed', flagMode); });
+  $$('[data-level]', win).forEach(chip => chip.addEventListener('click', () => {
+    level = chip.dataset.level;
+    $$('[data-level]', win).forEach(c => c.setAttribute('aria-pressed', c === chip));
+    newGame();
+  }));
+
+  newGame();
   return {
-    start() { if (!running) { running = true; loop(); } },
-    stop() { running = false; cancelAnimationFrame(raf); },
+    start() { if (started && !over && !timer) timer = setInterval(() => { secs++; time.textContent = pad(secs); }, 1000); },
+    stop() { clearInterval(timer); timer = 0; },
   };
 })();
 
