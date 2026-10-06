@@ -1,4 +1,4 @@
-/* Sofia Vallejo's site: window manager, wallpaper, music player and Buscaminas */
+/* Sofia Vallejo's site: window manager, wallpaper, music player and Minesweeper */
 'use strict';
 
 document.body.classList.remove('no-js');
@@ -609,7 +609,7 @@ const Amp = (() => {
 })();
 
 /* ------------------------------------------------------------
-   Buscaminas (Minesweeper). First click is always safe.
+   Minesweeper. First click is always safe.
    Click: dig · right-click / long-press / flag mode: flag ·
    click a number whose flags are all placed: clear around it.
    ------------------------------------------------------------ */
@@ -622,7 +622,7 @@ const Mines = (() => {
   const status = $('[data-mines-status]', win);
   const bestOut = $('[data-best]', win);
   const flagBtn = $('[data-flagmode]', win);
-  const LEVELS = { easy: { r: 9, c: 9, m: 10 }, medium: { r: 16, c: 16, m: 40 } };
+  const LEVELS = { easy: { r: 9, c: 9, m: 10 }, medium: { r: 16, c: 16, m: 40 }, hard: { r: 16, c: 30, m: 99 } };
   const FACE = { idle: '😸', press: '😮', lost: '🙀', won: '😺' };
   let level = 'easy', L, cells, btns, started, over, opened, flags, secs, timer = 0, flagMode = false;
 
@@ -661,6 +661,14 @@ const Mines = (() => {
     time.textContent = pad(0);
     status.textContent = matchMedia('(hover: none)').matches ? 'Tap to dig · long-press to flag' : 'Click to dig · right-click to flag';
     showBest();
+    fit();
+  }
+
+  // Bigger boards make the window wider, so nudge it back on screen
+  function fit() {
+    if (!win.classList.contains('open') || isNarrow()) return;
+    const r = win.getBoundingClientRect();
+    if (r.right > innerWidth - 8) win.style.left = Math.max(8, innerWidth - r.width - 8) + 'px';
   }
 
   function layMines(safe) {
@@ -705,8 +713,8 @@ const Mines = (() => {
   function dig(i) {
     if (over) return;
     const cell = cells[i];
-    if (!started) layMines(i);
     if (cell.flag) return;
+    if (!started) layMines(i);
     if (cell.open) { // chord
       const ns = neighbours(i);
       if (cell.n && ns.filter(k => cells[k].flag).length === cell.n) ns.forEach(k => { if (!cells[k].flag && !cells[k].open) reveal(k); });
@@ -730,7 +738,7 @@ const Mines = (() => {
     });
     btns[i].classList.add('boom');
     face.textContent = FACE.lost;
-    status.textContent = 'Boom. Click the cat to try again.';
+    status.textContent = 'Boom! Click the cat to try again.';
     blip('close');
   }
 
@@ -739,9 +747,9 @@ const Mines = (() => {
     cells.forEach((cell, k) => { if (cell.mine && !cell.flag) { cell.flag = true; paint(k); } });
     left.textContent = pad(0);
     face.textContent = FACE.won;
-    const key = 'sofia-mines-best-' + level, best = +store.get(key) || Infinity;
+    const key = 'sofia-mines-best-' + level, saved = store.get(key), best = saved === null ? Infinity : +saved;
     if (secs < best) store.set(key, secs);
-    status.textContent = secs < best ? `New best: ${secs}s!` : `Cleared in ${secs}s`;
+    status.textContent = secs < best ? `You win! New best: ${secs}s` : `You win! Cleared in ${secs}s`;
     showBest();
     blip('open');
   }
@@ -756,13 +764,18 @@ const Mines = (() => {
   }
 
   // Mouse, touch and keyboard
-  let pressTimer = 0, longPressed = false;
+  let pressTimer = 0, longPressed = false, lastPointer = 'mouse', downX = 0, downY = 0;
   grid.addEventListener('pointerdown', e => {
     const b = e.target.closest('button');
+    lastPointer = e.pointerType;
     if (!b || over) return;
-    if (e.button === 0) face.textContent = FACE.press;
+    if (e.button === 0 && !b.classList.contains('open')) face.textContent = FACE.press;
     longPressed = false;
+    downX = e.clientX; downY = e.clientY;
     if (e.pointerType !== 'mouse') pressTimer = setTimeout(() => { longPressed = true; flag(+b.dataset.i); navigator.vibrate?.(15); }, 420);
+  });
+  grid.addEventListener('pointermove', e => {
+    if (Math.hypot(e.clientX - downX, e.clientY - downY) > 10) clearTimeout(pressTimer);
   });
   const release = () => { clearTimeout(pressTimer); if (!over) face.textContent = FACE.idle; };
   grid.addEventListener('pointerup', release);
@@ -778,14 +791,16 @@ const Mines = (() => {
     const b = e.target.closest('button');
     if (!b) return;
     e.preventDefault();
+    if (lastPointer !== 'mouse') return; // touch flags via long-press
     flag(+b.dataset.i);
   });
   grid.addEventListener('keydown', e => {
     const b = e.target.closest('button');
     if (!b) return;
     const i = +b.dataset.i;
-    const move = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -L.c, ArrowDown: L.c }[e.key];
-    if (move !== undefined) { e.preventDefault(); btns[Math.max(0, Math.min(cells.length - 1, i + move))].focus(); }
+    const r = Math.floor(i / L.c), c = i % L.c;
+    const to = { ArrowLeft: c > 0 && i - 1, ArrowRight: c < L.c - 1 && i + 1, ArrowUp: r > 0 && i - L.c, ArrowDown: r < L.r - 1 && i + L.c }[e.key];
+    if (to !== undefined) { e.preventDefault(); if (to !== false) btns[to].focus(); }
     if (e.key === 'f' || e.key === 'F') flag(i);
   });
 

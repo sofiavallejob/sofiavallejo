@@ -33,7 +33,7 @@
     <button class="icon" data-open="cv"       data-icon="pdf"><span>CV.pdf</span></button>
     <button class="icon" data-open="fotos"    data-icon="camera"><span>Fotos</span></button>
     <button class="icon" data-open="contact"  data-icon="mail"><span>Contact</span></button>
-    <button class="icon" data-open="mines"    data-icon="mine"><span>Buscaminas</span></button>
+    <button class="icon" data-open="mines"    data-icon="mine"><span>Minesweeper</span></button>
   </nav>
 
   <main id="windows">
@@ -68,6 +68,9 @@
         <dl class="favs">
           <div><dt>Favourite game</dt><dd>Red Dead Redemption 2</dd></div>
           <div><dt>Favourite film</dt><dd>Star Wars: The Empire Strikes Back</dd></div>
+          <div><dt>Favourite TV shows</dt><dd>Peaky Blinders &amp; Modern Family</dd></div>
+          <div><dt>Favourite band</dt><dd>Nothing But Thieves</dd></div>
+          <div><dt>Favourite song</dt><dd>Inhaler, Foals</dd></div>
         </dl>
         <div class="btn-row">
           <button class="btn" data-open="research">Research</button>
@@ -502,12 +505,13 @@
       </div>
     </section>
 
-    <!-- ===================== BUSCAMINAS ===================== -->
-    <section class="win win-mines" id="mines" data-title="Buscaminas" data-icon="mine" data-x="0.40" data-y="0.12" data-w="300" aria-labelledby="mines-h">
+    <!-- ===================== MINESWEEPER ===================== -->
+    <section class="win win-mines" id="mines" data-title="Minesweeper" data-icon="mine" data-x="0.40" data-y="0.12" data-w="300" aria-labelledby="mines-h">
       <div class="toolbar" role="toolbar" aria-label="Difficulty">
-        <h2 id="mines-h" class="visually-hidden">Buscaminas (Minesweeper)</h2>
-        <button class="chip" aria-pressed="true" data-level="easy">Fácil</button>
-        <button class="chip" aria-pressed="false" data-level="medium">Medio</button>
+        <h2 id="mines-h" class="visually-hidden">Minesweeper</h2>
+        <button class="chip" aria-pressed="true" data-level="easy">Easy</button>
+        <button class="chip" aria-pressed="false" data-level="medium">Medium</button>
+        <button class="chip mines-hard" aria-pressed="false" data-level="hard">Hard</button>
         <button class="chip mines-flagmode" aria-pressed="false" data-flagmode title="Tap to place flags">🚩 Flags</button>
       </div>
       <div class="win-body mines-body">
@@ -576,7 +580,7 @@
       <li><button data-open="teaching" data-icon="cap">Teaching</button></li>
       <li><button data-open="fotos"    data-icon="camera">Fotos</button></li>
       <li><button data-open="contact"  data-icon="mail">Contact</button></li>
-      <li><button data-open="mines"    data-icon="mine">Buscaminas</button></li>
+      <li><button data-open="mines"    data-icon="mine">Minesweeper</button></li>
       <li class="sm-sep"></li>
       <li><a href="assets/cv/Sofia_Vallejo_CV.pdf" download data-icon="pdf">Download CV</a></li>
       <li><button data-shutdown data-icon="power">Shut down…</button></li>

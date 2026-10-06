@@ -16,7 +16,7 @@ I'm Sofia Vallejo, an audio engineer and PhD candidate in Sonic Interaction Desi
 | **Music.amp** | A Winamp-ish player with tracks I recorded, mixed, mastered or played bass on |
 | **Teaching** | Courses I've TA'd, including Musical Acoustics |
 | **Fotos** | Photos I've taken |
-| **Buscaminas** | Minesweeper, with cats |
+| **Minesweeper** | Minesweeper, with cats |
 | **CV.pdf** | The short version, with a download |
 
 ## How it's made
@@ -25,7 +25,7 @@ Plain HTML, CSS and JavaScript. No framework, no build step, no dependencies.
 
 - `index.html`: all the content. Each window is a `<section class="win">`.
 - `assets/css/style.css`: the look (beveled 90s chrome, pastel title bars)
-- `assets/js/main.js`: the window manager, the pixel-space wallpaper, the music player and Buscaminas.
+- `assets/js/main.js`: the window manager, the pixel-space wallpaper, the music player and Minesweeper.
 - Fonts: [Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) and [IBM Plex](https://fonts.google.com/specimen/IBM+Plex+Sans)
 
 To run it locally, open `index.html` in a browser. The YouTube parts (background music, some Music.amp tracks) need a local server:
