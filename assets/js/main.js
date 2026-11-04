@@ -78,6 +78,12 @@ const ICONS = {
     '.kkwkkkkkkkkkk..', '.kkkkkkkkkkkkk..', '.kkkkkkkkkkkkk..', '..kkkkkkkkkkk...',
     '..kkkkkkkkkkk...', '...kkkkkkkkk....', '.....kkkkk......', '................',
   ],
+  blog: [
+    '................', 'kkkkkkkkkkkkkk..', 'kwwwwwwwwwwwwk..', 'kwrrrrrwwkkkwkk.',
+    'kwrrrrrwwwwwwkwk', 'kwrrrrrwwkkkwkwk', 'kwwwwwwwwwwwwkwk', 'kwkkkkkkkkkkwkwk',
+    'kwwwwwwwwwwwwkwk', 'kwkkkkkkkkkkwkwk', 'kwwwwwwwwwwwwkwk', 'kwkkkkkkkwwwwkwk',
+    'kwwwwwwwwwwwwkwk', 'kkkkkkkkkkkkkkwk', '.kwwwwwwwwwwwwwk', '.kkkkkkkkkkkkkkk',
+  ],
 };
 ICONS.folderblue = ICONS.folder.map(r => r.replace(/y/g, 'b').replace(/Y/g, 'B'));
 

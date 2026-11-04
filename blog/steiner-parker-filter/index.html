@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Modeling the Steiner-Parker filter</title>
+  <meta name="description" content="How I turned the Steiner-Parker diode filter into a wave digital model and a VST3/AU plugin: the circuit, the solver, the build and the tests.">
+  <meta name="author" content="Sofia Vallejo">
+  <meta property="og:title" content="Modeling the Steiner-Parker filter">
+  <meta property="og:description" content="A wave digital model of a 1970s diode filter, now a free VST3/AU plugin (beta).">
+  <meta property="og:image" content="img/plugin.png">
+  <meta name="theme-color" content="#1d2257">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Pixelify+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* A blog post is one tall window on the desktop wallpaper. Colours and
+       chrome come from the site's style.css; only layout lives here. */
+    html, body { height: auto; }
+    html { background: var(--sky-a); }
+    body {
+      overflow: auto; min-height: 100%;
+      background: linear-gradient(160deg, var(--sky-a), var(--sky-c) 50%, var(--sky-b)) fixed;
+      padding-block: 28px 56px;
+      padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px));
+    }
+    .post-win {
+      max-width: 880px; margin: 0 auto; background: var(--chrome); padding: 3px;
+      box-shadow: var(--bevel-out), 6px 8px 0 color-mix(in srgb, var(--title-a) 30%, transparent);
+    }
+    .post-win .titlebar { cursor: default; background: linear-gradient(90deg, var(--title-a), var(--title-b)); color: #fff; }
+    .post-win .titlebar svg { width: 18px; height: 18px; }
+    .t-home { text-decoration: none; }
+    .post-body { margin: 2px; background: var(--paper); box-shadow: var(--bevel-in); padding: 40px 48px 56px; }
+    .post-body > * { max-width: 680px; margin-left: auto; margin-right: auto; }
+    .post-body > .wide { max-width: 760px; }
+
+    .post-meta { font: 12.5px/1.6 var(--font-mono); color: var(--muted); margin-top: 0; margin-bottom: 10px; }
+    .post-body h1 { font: 600 40px/1.1 var(--font-ui); margin-top: 0; margin-bottom: 16px; text-wrap: balance; }
+    .post-body .dek { font-size: 19px; line-height: 1.55; color: var(--muted); margin-bottom: 22px; }
+    .post-body h2 { font: 600 26px/1.2 var(--font-ui); margin-top: 52px; margin-bottom: 14px; text-wrap: balance; }
+    .post-body h3 { font: 600 19px/1.3 var(--font-body); margin-top: 34px; margin-bottom: 8px; }
+    .post-body p, .post-body li { font-size: 17px; line-height: 1.7; }
+    .post-body p { margin-top: 0; margin-bottom: 16px; }
+    .post-body ul, .post-body ol { padding-left: 1.3em; }
+    .post-body li { margin-bottom: 6px; }
+    .post-body code { font: 14px var(--font-mono); background: color-mix(in srgb, var(--chrome) 45%, transparent); padding: 1px 5px; }
+    .post-body pre { font: 13.5px/1.6 var(--font-mono); background: var(--desk); color: var(--phosphor); padding: 14px 16px; overflow-x: auto; margin: 10px auto 18px; }
+    .post-body pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+
+    .hero-shot { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 32px; align-items: start; }
+    .hero-shot img { width: 100%; height: auto; box-shadow: var(--bevel-out); }
+    .hero-shot > div { min-width: 0; }
+
+    /* figures sit on white in both themes, because the plots are drawn for light */
+    figure { margin: 28px auto; }
+    .fig { background: #ffffff; padding: 16px 16px 10px; box-shadow: var(--bevel-in); }
+    .fig img { width: 100%; height: auto; }
+    figcaption { font-size: 14.5px; line-height: 1.55; color: var(--muted); margin-top: 10px; }
+    figcaption b { color: var(--ink); }
+    .diagram { overflow-x: auto; }
+    .diagram svg { display: block; width: 100%; min-width: 620px; height: auto; }
+
+    .note { background: color-mix(in srgb, var(--rec) 10%, var(--paper)); border-left: 4px solid var(--rec); padding: 12px 16px; margin: 20px auto; }
+    .note p { margin: 0; font-size: 16px; }
+
+    .table-wrap { overflow-x: auto; margin: 10px auto 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: 15px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid color-mix(in srgb, var(--chrome-lo) 45%, transparent); vertical-align: top; }
+    th { font: 600 12.5px/1.3 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    td.num { font-family: var(--font-mono); font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .ok { font: 500 12px/1 var(--font-mono); background: #2e8f86; color: #fff; padding: 3px 7px; white-space: nowrap; }
+
+    .tracks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .track { box-shadow: var(--bevel-in); padding: 12px 14px; min-width: 0; }
+    .track b { font: 500 15px/1.3 var(--font-ui); display: block; }
+    .track span { font-size: 13.5px; color: var(--muted); display: block; margin-bottom: 8px; }
+    .track audio { width: 100%; height: 34px; }
+
+    .post-foot { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; margin-top: 3px; font: 13px/1 var(--font-ui); color: var(--muted); }
+    .post-foot > * { flex: 1; padding: 6px 8px; box-shadow: var(--bevel-in); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .post-foot > *:last-child { text-align: right; }
+
+    @media (max-width: 720px) {
+      .post-body { padding: 26px 18px 40px; }
+      .post-body h1 { font-size: 32px; }
+      .hero-shot { grid-template-columns: 1fr; }
+      .hero-shot img { max-width: 220px; }
+      .tracks { grid-template-columns: 1fr; }
+    }
+    /* Pixelify's fi ligature drops the i; the font shorthand turns ligatures back on, so switch them off again */
+    .post-body h1, .post-body h2, .titlebar, .btn, th, .track b, .post-foot {
+      font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0, "calt" 0;
+    }
+  </style>
+</head>
+<body>
+<article class="post-win">
+  <div class="titlebar">
+    <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="0" width="9" height="1" fill="#14130f"/><rect x="2" y="1" width="1" height="13" fill="#14130f"/><rect x="13" y="3" width="1" height="11" fill="#14130f"/><rect x="2" y="14" width="12" height="1" fill="#14130f"/><rect x="3" y="1" width="8" height="13" fill="#fbf8ee"/><rect x="11" y="2" width="2" height="12" fill="#fbf8ee"/><rect x="4" y="4" width="7" height="1" fill="#14130f"/><rect x="4" y="7" width="8" height="1" fill="#14130f"/><rect x="4" y="10" width="6" height="1" fill="#14130f"/></svg>
+    <span class="t-name">steiner-parker-filter.txt</span>
+    <a class="t-btn t-home" href="../../#blog" aria-label="Back to the desktop" title="Back to the desktop">&times;</a>
+  </div>
+
+  <div class="post-body">
+    <p class="post-meta">4 November 2026 &middot; Sofia Vallejo &middot; Institute of Electronic Music and Acoustics (IEM), KUG</p>
+    <h1>Modeling the Steiner-Parker filter</h1>
+    <p class="dek">I turned a 1970s diode filter into a wave digital model and a free VST3/AU plugin. This is how I did it, how I tested it, and what turned up along the way.</p>
+
+    <div class="hero-shot">
+      <div>
+        <p>I wanted to model an analog filter that hasn't already been done a hundred times. The Moog ladder, the MS-20 and the TB-303 all have papers and plugins. My first pick was the EDP Wasp, until I found a DAFx 2022 paper that models it already. The Steiner-Parker has a few plugin clones but, as far as I could find, no published circuit model, and its schematic is public. So that's the one.</p>
+        <p>The plugin is in beta. It runs on macOS as VST3 and AU, and everything is open source.</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="https://github.com/sofiavallejob/steiner-parker-filter/releases/latest/download/Steiner-Parker-Filter-0.1.0-beta-mac.zip">Download for macOS</a>
+          <a class="btn" href="https://github.com/sofiavallejob/steiner-parker-filter">Code on GitHub</a>
+        </div>
+      </div>
+      <img src="img/plugin.png" alt="The plugin panel: Frequency and Resonance knobs in red, CV offset and V/oct trim in yellow, Input level and Output in teal, and Response and Quality selectors." width="560" height="1008">
+    </div>
+
+    <h2>The circuit</h2>
+    <p>Most analog filters use transistors. This one uses a chain of ten 1N4148 diodes with three 1.5 nF capacitors hanging off it. A transistor pair pushes current through the chain, and that current sets the cutoff: more current, higher cutoff.</p>
+    <p>There are three inputs. Feed the signal in at one point of the network and you get a low-pass, at another a band-pass, at the third a high-pass, all from the same circuit and the same output. On the module that's the Response switch.</p>
+    <p>I used the schematic from Leonardo Laguna Ruiz's <a href="https://modlfo.github.io/projects/vult-analog-steiner-parker">Vult Eurorack build</a> (<a href="https://modlfo.github.io/images/vult-analog-steiner-parker-diagram.pdf">schematic PDF</a>). It's based on Yves Usson's <a href="https://yusynth.net">Yusynth</a> version, which goes back to Nyle Steiner's Synthacon. Every resistor and capacitor value in the model comes from that schematic. This is roughly how the signal moves through it:</p>
+
+    <figure class="wide fig diagram" role="img" aria-label="Signal flow: input, input select A/B/C, diode network, IC1C buffer, output stage. The expo pair feeds bias currents into the diode network; the resonance network takes IC1C's output back into it.">
+      <svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1e3a4c"/></marker></defs>
+        <g font-family="IBM Plex Sans, Helvetica Neue, Arial, sans-serif" fill="#1e3a4c">
+          <rect x="20" y="62" width="104" height="62" fill="#ffffff" stroke="#c7d0d5" stroke-width="1.5"/>
+          <text x="72" y="90" text-anchor="middle" font-size="15" font-weight="600">Input</text>
+          <text x="72" y="109" text-anchor="middle" font-size="12" fill="#5f707b">level, IC1A</text>
+          <rect x="160" y="62" width="130" height="62" fill="#ffffff" stroke="#c7d0d5" stroke-width="1.5"/>
+          <text x="225" y="90" text-anchor="middle" font-size="15" font-weight="600">Input select</text>
+          <text x="225" y="109" text-anchor="middle" font-size="12" fill="#5f707b">A LP / B BP / C HP</text>
+          <rect x="326" y="50" width="220" height="86" fill="#fbe9e5" stroke="#e0533d" stroke-width="2"/>
+          <text x="436" y="82" text-anchor="middle" font-size="16" font-weight="700">Diode network</text>
+          <text x="436" y="102" text-anchor="middle" font-size="12" fill="#5f707b">10 x 1N4148, 3 x 1.5 nF</text>
+          <text x="436" y="120" text-anchor="middle" font-size="12" fill="#5f707b">WDF + Newton per sample</text>
+          <rect x="582" y="62" width="120" height="62" fill="#ffffff" stroke="#c7d0d5" stroke-width="1.5"/>
+          <text x="642" y="90" text-anchor="middle" font-size="15" font-weight="600">IC1C buffer</text>
+          <text x="642" y="109" text-anchor="middle" font-size="12" fill="#5f707b">C12, gain 3.14</text>
+          <rect x="738" y="62" width="142" height="62" fill="#ffffff" stroke="#c7d0d5" stroke-width="1.5"/>
+          <text x="809" y="90" text-anchor="middle" font-size="15" font-weight="600">Output stage</text>
+          <text x="809" y="109" text-anchor="middle" font-size="12" fill="#5f707b">IC1B x22, rail clip</text>
+          <g stroke="#1e3a4c" stroke-width="1.6" fill="none">
+            <line x1="124" y1="93" x2="156" y2="93" marker-end="url(#ah)"/>
+            <line x1="290" y1="93" x2="322" y2="93" marker-end="url(#ah)"/>
+            <line x1="546" y1="93" x2="578" y2="93" marker-end="url(#ah)"/>
+            <line x1="702" y1="93" x2="734" y2="93" marker-end="url(#ah)"/>
+          </g>
+          <rect x="250" y="176" width="190" height="56" fill="#ffffff" stroke="#d99a1e" stroke-width="1.8"/>
+          <text x="345" y="200" text-anchor="middle" font-size="14.5" font-weight="600">Expo pair (THAT300)</text>
+          <text x="345" y="218" text-anchor="middle" font-size="12" fill="#5f707b">CUT knob, CV, V/oct trim</text>
+          <rect x="520" y="176" width="230" height="56" fill="#ffffff" stroke="#2e8f86" stroke-width="1.8"/>
+          <text x="635" y="200" text-anchor="middle" font-size="14.5" font-weight="600">Resonance network</text>
+          <text x="635" y="218" text-anchor="middle" font-size="12" fill="#5f707b">RES pot, IC1D, R15</text>
+          <g stroke="#1e3a4c" stroke-width="1.6" fill="none">
+            <line x1="380" y1="176" x2="380" y2="140" marker-end="url(#ah)"/>
+            <path d="M642 124 L642 172" marker-end="url(#ah)"/>
+            <path d="M540 176 L540 156 L500 156 L500 140" marker-end="url(#ah)"/>
+          </g>
+          <text x="372" y="162" text-anchor="end" font-size="12" fill="#5f707b">bias currents</text>
+          <text x="492" y="170" text-anchor="end" font-size="12" fill="#5f707b">feedback</text>
+        </g>
+      </svg>
+    </figure>
+
+    <h2>The model</h2>
+    <p>I used wave digital filters (WDF). Each capacitor becomes a small WDF element that remembers one value from the last sample. Everything else is nonlinear and tangled together: the diodes, the transistor pair, the op-amps and the resonance feedback. I treat all of that as one block and solve it every sample with Newton's method.</p>
+    <p>Diodes in series with nothing between them behave like one bigger diode, so the ten diodes collapse into four groups. With the feedback path, the solver ends up with five unknowns per sample, which is small enough to run in real time.</p>
+    <p>The resonance feedback loops straight back into that block. A common shortcut is to break such a loop with a one-sample delay, but that puts the resonance in the wrong place (more on that below), so I solve the loop as part of the block.</p>
+    <p>One thing went wrong at first. At high resonance, Newton started jumping back and forth between two answers instead of settling. The fix was the diode step limiting that SPICE uses (<code>pnjlim</code>). After that it settles in two or three steps, even at the top of the resonance range.</p>
+    <p>The model exists three times, with the same equations in each:</p>
+    <ul>
+      <li><b>Python</b> (numpy and numba), for the analysis and the plots on this page</li>
+      <li><b>C++</b>, the code inside the plugin</li>
+      <li><b>JSFX</b>, a version that runs in Reaper without compiling anything</li>
+    </ul>
+    <p>The C++ and JSFX versions match the Python one to within about 1 microvolt.</p>
+
+    <h2>The build</h2>
+    <p>The plugin is made with <a href="https://juce.com">JUCE 8</a> and CMake, so there's no Xcode project to deal with. One script builds a universal binary (Apple silicon and Intel) as VST3, AU and a standalone app, and installs it. A second script packs the beta zip.</p>
+    <pre><code>xcode-select --install
+brew install cmake ninja
+cd plugin &amp;&amp; ./build_mac.sh</code></pre>
+    <p>The panel is laid out like a Eurorack module, and the knob colours follow function. Red is the filter (Frequency, Resonance), yellow is modulation (CV offset, V/oct trim), teal is the signal path (Input level, Output), and cream marks the switches. It has 8 factory presets, and you can save and load your own.</p>
+    <p>Before releasing it I ran Apple's <code>auval</code> and Tracktion's <code>pluginval</code>. Both passed, for the AU and the VST3.</p>
+
+    <h2>Testing it</h2>
+    <p>I don't have the hardware yet, so I can't compare against a real module. What I can check is whether the simulation actually solves the circuit it's supposed to. For each test I compare the model against something calculated another way.</p>
+
+    <h3>Frequency response</h3>
+    <p>I wrote a second, completely separate analysis that linearizes the circuit and solves it directly in the frequency domain. Then I sent a tiny impulse through the real model, small enough that it behaves linearly, and compared the two.</p>
+    <figure class="wide">
+      <div class="fig"><img src="img/response.svg" alt="Three panels of frequency response for low-pass, band-pass and high-pass at three resonance settings. The model's thin lines sit on top of the reference's thick lines." width="980" height="310"></div>
+      <figcaption><b>Figure 1.</b> Thick lines are the linearized analysis, thin lines are the model (48 kHz, 4x oversampling, cutoff around 2 kHz). The biggest difference between 30 Hz and 16 kHz is 0.36 dB in low-pass, 0.18 dB in band-pass and 0.05 dB in high-pass.</figcaption>
+    </figure>
+
+    <h3>The feedback loop</h3>
+    <p>This is why I didn't take the one-sample-delay shortcut. With the delay, the resonance peak slides flat as the cutoff goes up. Solved properly, it stays where it should.</p>
+    <figure>
+      <div class="fig"><img src="img/loop.svg" alt="Peak error in cents against frequency. The implicit solver stays near zero; the delayed loop falls to minus 760 cents at 14.6 kHz." width="680" height="370"></div>
+      <figcaption><b>Figure 2.</b> Where the band-pass peak lands compared to the analysis. Solved properly it stays within 4 cents up to 5 kHz. With the delay it's 44 cents off at 670 Hz and 760 cents off at 14.6 kHz, more than half an octave.</figcaption>
+    </figure>
+
+    <h3>Cutoff range</h3>
+    <p>The cutoff is set by a resistor network that adds up the CUT knob, the CV input and a trimmer (T1), which sets how many octaves you get per volt.</p>
+    <div class="note"><p>You can't have both in this circuit. If you trim it to exactly 1 V/octave, the Frequency knob only covers 10 Hz to 2.5 kHz. That's why my first version sounded so dark. The plugin now defaults to a trim of 0.45, which gives 5 Hz to 20 kHz at about 1.5 octaves per volt.</p></div>
+    <figure class="wide">
+      <div class="fig"><img src="img/cutoff.svg" alt="Left: cutoff frequency against the Frequency knob for three trim settings. Right: frequency against CV, with slopes of 0.97, 1.56 and 2.25 octaves per volt." width="980" height="320"></div>
+      <figcaption><b>Figure 3.</b> Left: cutoff across the Frequency knob for three trim settings. The grey band is 20 Hz to 20 kHz. Right: how far the cutoff moves per volt of CV.</figcaption>
+    </figure>
+
+    <h3>Resonance</h3>
+    <p>Turning up the resonance pot sends more of the filter's output back into it. At some point the filter starts singing on its own.</p>
+    <figure>
+      <div class="fig"><img src="img/resonance.svg" alt="Q rising with the resonance pot until self-oscillation begins at about 0.71, before the knob limit at 0.78." width="680" height="370"></div>
+      <figcaption><b>Figure 4.</b> How sharp the resonance gets (Q) as you turn the pot, with the cutoff at 1 kHz. Self-oscillation starts at 0.71 on the pot. The plugin's knob stops at 0.78 of the pot, so in practice it starts singing at about 90% of the knob.</figcaption>
+    </figure>
+
+    <h3>Where the dirt comes from</h3>
+    <p>I expected the diodes to give the filter its character. At normal levels they barely do anything. The 47 k input resistor drops the signal about 48 times before it gets to them.</p>
+    <figure>
+      <div class="fig"><img src="img/thd.svg" alt="Distortion against input level. At the filter core it stays below 0.01 percent; at the output it rises to about 10 percent at 10 volts." width="680" height="370"></div>
+      <figcaption><b>Figure 5.</b> Distortion of a 220 Hz sine through the low-pass. Inside the filter it stays at 0.004% even at 10 V. The output stage, which amplifies 22 times, hits its rails and reaches about 10%. So the plugin's Drive knob mostly drives that output stage, and the resonance once it's high.</figcaption>
+    </figure>
+
+    <h3>Self-oscillation pitch</h3>
+    <p>When the filter self-oscillates, its pitch goes up as it gets louder. The linear analysis says it should sit near 1 kHz. In the time-domain model it starts at 1.4 kHz and reaches 6.2 kHz at the end of the knob.</p>
+    <figure>
+      <div class="fig"><img src="img/selfosc.svg" alt="Oscillation frequency rising from 1.4 kilohertz at onset to 6.2 kilohertz at the knob limit while the linear pole frequency stays near 1 kilohertz; amplitude grows alongside." width="680" height="370"></div>
+      <figcaption><b>Figure 6.</b> Self-oscillation in the plugin's C++ model at 192 kHz, cutoff set to 1 kHz. It isn't a numerical problem, because it comes out the same at 4x and 16x oversampling. It could still come from my simplifications (an ideal transistor pair, no diode capacitance), so I want to measure a real module before calling it a feature.</figcaption>
+    </figure>
+
+    <h3>How hard the solver works</h3>
+    <figure>
+      <div class="fig"><img src="img/solver.svg" alt="Bar chart: 95 percent of samples need 2 Newton iterations, about 4 percent need 3, under 0.2 percent need 4 or 5." width="680" height="330"></div>
+      <figcaption><b>Figure 7.</b> Newton steps per sample over 3.5 million samples: saw sweeps through all three inputs. It averages 2.05 steps and never goes above 5. In stereo with 2x oversampling, the plugin runs about 7 times faster than real time on one CPU core.</figcaption>
+    </figure>
+
+    <h3>Everything else</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Check</th><th>Result</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>Plugin C++ against the Python model</td><td class="num">max 0.8 &micro;V</td><td><span class="ok">PASS</span></td></tr>
+          <tr><td>JSFX against the Python model</td><td class="num">max 1.4 &micro;V</td><td><span class="ok">PASS</span></td></tr>
+          <tr><td>Apple <code>auval</code>, 11 to 192 kHz</td><td class="num">all tests</td><td><span class="ok">PASS</span></td></tr>
+          <tr><td><code>pluginval</code> strictness 5, VST3 and AU</td><td class="num">all tests</td><td><span class="ok">PASS</span></td></tr>
+          <tr><td>Stress test: every mode, +24 dB drive, full resonance, fast cutoff jumps</td><td class="num">no NaNs</td><td><span class="ok">PASS</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Listen</h2>
+    <p>A 55 Hz sawtooth at Eurorack level (5 V), with the cutoff sweeping slowly up and back down.</p>
+    <div class="tracks">
+      <div class="track"><b>Low-pass</b><span>input A, resonance 0.55</span><audio controls preload="none" src="audio/saw_sweep_lowpass.mp3"></audio></div>
+      <div class="track"><b>Band-pass</b><span>input B, resonance 0.55</span><audio controls preload="none" src="audio/saw_sweep_bandpass.mp3"></audio></div>
+      <div class="track"><b>High-pass</b><span>input C, resonance 0.55</span><audio controls preload="none" src="audio/saw_sweep_highpass.mp3"></audio></div>
+      <div class="track"><b>Low-pass, almost singing</b><span>input A, resonance 0.74</span><audio controls preload="none" src="audio/saw_sweep_lowpass_resonant.mp3"></audio></div>
+    </div>
+
+    <h2>What's missing</h2>
+    <ul>
+      <li><b>A real module to compare against.</b> If you have a Yusynth or Vult build and can record it, please write to me.</li>
+      <li><b>Some parts are idealized.</b> The transistor pair is ideal, the diodes have no capacitance, and the op-amps are perfect amplifiers with a soft clip at the rails.</li>
+      <li><b>The top of the resonance pot is left out.</b> Above about 0.8, the model starts oscillating at 15 to 28 kHz and the solver struggles. I think that comes from the simplifications above, so it stays out until I can check it.</li>
+      <li><b>No all-pass setting.</b> The Yusynth panel has an AP position. The Vult build doesn't, and I'm not adding it without seeing the real wiring.</li>
+      <li><b>Mac only, and not notarized.</b> macOS needs one Terminal command after installing (below). Windows and Linux builds should work from the same code, but I haven't released them yet.</li>
+    </ul>
+
+    <h2>Try the beta</h2>
+    <ol>
+      <li><a href="https://github.com/sofiavallejob/steiner-parker-filter/releases/latest/download/Steiner-Parker-Filter-0.1.0-beta-mac.zip">Download the zip</a> and unzip it.</li>
+      <li>Copy <code>Steiner-Parker Filter.vst3</code> into <code>~/Library/Audio/Plug-Ins/VST3/</code> and <code>Steiner-Parker Filter.component</code> into <code>~/Library/Audio/Plug-Ins/Components/</code>. In Finder, use Go &gt; Go to Folder and paste the path.</li>
+      <li>Open Terminal and paste these two lines. They only remove the "downloaded from the internet" flag from those two files.</li>
+    </ol>
+    <pre><code>xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/"Steiner-Parker Filter.vst3"
+xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/"Steiner-Parker Filter.component"</code></pre>
+    <ol start="4">
+      <li>Rescan plugins in your DAW and look for <b>Steiner-Parker Filter</b> by Sofia Vallejo. AU plugins show up after restarting the DAW.</li>
+    </ol>
+    <p>Found a bug, or something sounds off? <a href="https://github.com/sofiavallejob/steiner-parker-filter/issues">Open an issue</a> and tell me your DAW, sample rate and settings.</p>
+
+    <h2>Credits</h2>
+    <p>The circuit is by Nyle Steiner (the Synthacon), Yves Usson (<a href="https://yusynth.net">Yusynth</a>) and Leonardo Laguna Ruiz (<a href="https://modlfo.github.io/projects/vult-analog-steiner-parker">Vult</a>), whose schematic values the model uses. The plugin only models how the circuit behaves; it doesn't include their drawings or PCB files. It's built with JUCE 8, and the VST3 SDK is by Steinberg. The code is open source under the <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL v3</a>.</p>
+  </div>
+
+  <div class="post-foot">
+    <span>Steiner-Parker Filter, beta 0.1.0</span>
+    <a href="../../#blog">Back to the desktop</a>
+  </div>
+</article>
+</body>
+</html>

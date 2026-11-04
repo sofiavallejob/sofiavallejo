@@ -12,7 +12,8 @@ I'm Sofia Vallejo, an audio engineer and PhD candidate in Sonic Interaction Desi
 | --- | --- |
 | **About.txt** | Who I am, plus the important stuff (food, games, Star Wars) |
 | **Research** | Papers, awards, talks |
-| **Projects** | Sonification, audio ML and Pure Data things, newest first |
+| **Projects** | Sonification, audio ML, plugins and Pure Data things, newest first |
+| **Blog** | Longer write-ups: how things were made, with plots and audio |
 | **Music.amp** | A Winamp-ish player with tracks I recorded, mixed, mastered or played bass on |
 | **Teaching** | Courses I've TA'd, including Musical Acoustics |
 | **Fotos** | Photos I've taken |
@@ -40,6 +41,7 @@ python3 -m http.server
 - **Add a photo:** put it in `assets/img/fotos/`, then copy the example line from the comment in the Fotos section of `index.html`.
 - **Add a track:** copy an `<li>` in the Music.amp playlist and change the cover, names, roles and embed URL.
 - **Change the background song:** change `data-video` on `<div class="radio">` to another YouTube video ID.
+- **Add a blog post:** copy the folder `blog/steiner-parker-filter/` to `blog/<new-post>/`, edit its `index.html`, then add a row to the list in the Blog section of `index.html`.
 - **Update the CV:** replace `assets/cv/Sofia_Vallejo_CV.pdf`.
 - **Deep links:** `#research`, `#projects`, `#music`, etc. open that window directly.
 
