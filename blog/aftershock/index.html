@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Aftershock: a reverb made from earthquakes</title>
+  <meta name="description" content="How I built Aftershock, a reverb plugin whose tail is a real seismogram: the data, the cleaning, the mapping, what I measured and what is not proven yet.">
+  <meta name="author" content="Sofia Vallejo Budziszewski">
+  <meta property="og:title" content="Aftershock: a reverb made from earthquakes">
+  <meta property="og:description" content="A reverb made from 80 real earthquake recordings. Free VST3/AU/Standalone plugin for macOS and Windows.">
+  <meta property="og:image" content="img/simple_dark.png">
+  <meta name="theme-color" content="#1d2257">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Pixelify+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* A blog post is one tall window on the desktop wallpaper. Colours and
+       chrome come from the site's style.css; only layout lives here. */
+    html, body { height: auto; }
+    html { background: var(--sky-a); }
+    body {
+      overflow: auto; min-height: 100%;
+      background: linear-gradient(160deg, var(--sky-a), var(--sky-c) 50%, var(--sky-b)) fixed;
+      padding-block: 28px 56px;
+      padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px));
+    }
+    .post-win {
+      max-width: 880px; margin: 0 auto; background: var(--chrome); padding: 3px;
+      box-shadow: var(--bevel-out), 6px 8px 0 color-mix(in srgb, var(--title-a) 30%, transparent);
+    }
+    .post-win .titlebar { cursor: default; background: linear-gradient(90deg, var(--title-a), var(--title-b)); color: #fff; }
+    .post-win .titlebar svg { width: 18px; height: 18px; }
+    .t-home { text-decoration: none; }
+    .post-body { margin: 2px; background: var(--paper); box-shadow: var(--bevel-in); padding: 40px 48px 56px; }
+    .post-body > * { max-width: 680px; margin-left: auto; margin-right: auto; }
+    .post-body > .wide { max-width: 760px; }
+
+    .post-meta { font: 12.5px/1.6 var(--font-mono); color: var(--muted); margin-top: 0; margin-bottom: 10px; }
+    .post-body h1 { font: 600 40px/1.1 var(--font-ui); margin-top: 0; margin-bottom: 16px; text-wrap: balance; }
+    .post-body .dek { font-size: 19px; line-height: 1.55; color: var(--muted); margin-bottom: 22px; }
+    .post-body h2 { font: 600 26px/1.2 var(--font-ui); margin-top: 52px; margin-bottom: 14px; text-wrap: balance; }
+    .post-body h3 { font: 600 19px/1.3 var(--font-body); margin-top: 34px; margin-bottom: 8px; }
+    .post-body p, .post-body li { font-size: 17px; line-height: 1.7; }
+    .post-body p { margin-top: 0; margin-bottom: 16px; }
+    .post-body ul, .post-body ol { padding-left: 1.3em; }
+    .post-body li { margin-bottom: 6px; }
+    .post-body code { font: 14px var(--font-mono); background: color-mix(in srgb, var(--chrome) 45%, transparent); padding: 1px 5px; }
+    .post-body pre { font: 13.5px/1.6 var(--font-mono); background: var(--desk); color: var(--phosphor); padding: 14px 16px; overflow-x: auto; margin: 10px auto 18px; }
+    .post-body pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+
+    .hero-shot { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 32px; align-items: start; }
+    .hero-shot img { width: 100%; height: auto; box-shadow: var(--bevel-out); }
+    .hero-shot > div { min-width: 0; }
+
+    /* figures sit on white in both themes, because the plots are drawn for light */
+    figure { margin: 28px auto; }
+    .fig { background: #ffffff; padding: 16px 16px 10px; box-shadow: var(--bevel-in); }
+    .fig img { width: 100%; height: auto; }
+    figcaption { font-size: 14.5px; line-height: 1.55; color: var(--muted); margin-top: 10px; }
+    figcaption b { color: var(--ink); }
+    .diagram { overflow-x: auto; }
+    .diagram svg { display: block; width: 100%; min-width: 620px; height: auto; }
+
+    .note { background: color-mix(in srgb, var(--rec) 10%, var(--paper)); border-left: 4px solid var(--rec); padding: 12px 16px; margin: 20px auto; }
+    .note p { margin: 0; font-size: 16px; }
+
+    .table-wrap { overflow-x: auto; margin: 10px auto 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: 15px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid color-mix(in srgb, var(--chrome-lo) 45%, transparent); vertical-align: top; }
+    th { font: 600 12.5px/1.3 var(--font-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    td.num { font-family: var(--font-mono); font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .ok { font: 500 12px/1 var(--font-mono); background: #2e8f86; color: #fff; padding: 3px 7px; white-space: nowrap; }
+
+    .tracks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .track { box-shadow: var(--bevel-in); padding: 12px 14px; min-width: 0; }
+    .track b { font: 500 15px/1.3 var(--font-ui); display: block; }
+    .track span { font-size: 13.5px; color: var(--muted); display: block; margin-bottom: 8px; }
+    .track audio { width: 100%; height: 34px; }
+
+    .post-foot { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; margin-top: 3px; font: 13px/1 var(--font-ui); color: var(--muted); }
+    .post-foot > * { flex: 1; padding: 6px 8px; box-shadow: var(--bevel-in); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .post-foot > *:last-child { text-align: right; }
+
+    .shot img { width: 100%; height: auto; display: block; box-shadow: var(--bevel-out); }
+    .btn-row { margin-bottom: 8px; }
+    @media (max-width: 720px) {
+      .post-body { padding: 26px 18px 40px; }
+      .post-body h1 { font-size: 32px; }
+      .hero-shot { grid-template-columns: 1fr; }
+      .hero-shot img { max-width: 220px; }
+      .tracks { grid-template-columns: 1fr; }
+    }
+    /* Pixelify's fi ligature drops the i; the font shorthand turns ligatures back on, so switch them off again */
+    .post-body h1, .post-body h2, .titlebar, .btn, th, .track b, .post-foot {
+      font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0, "calt" 0;
+    }
+  </style>
+</head>
+<body>
+<article class="post-win">
+  <div class="titlebar">
+    <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="2" y="0" width="9" height="1" fill="#14130f"/><rect x="2" y="1" width="1" height="13" fill="#14130f"/><rect x="13" y="3" width="1" height="11" fill="#14130f"/><rect x="2" y="14" width="12" height="1" fill="#14130f"/><rect x="3" y="1" width="8" height="13" fill="#fbf8ee"/><rect x="11" y="2" width="2" height="12" fill="#fbf8ee"/><rect x="4" y="4" width="7" height="1" fill="#14130f"/><rect x="4" y="7" width="8" height="1" fill="#14130f"/><rect x="4" y="10" width="6" height="1" fill="#14130f"/></svg>
+    <span class="t-name">aftershock.txt</span>
+    <a class="t-btn t-home" href="../../#blog" aria-label="Back to the desktop" title="Back to the desktop">&times;</a>
+  </div>
+  <div class="post-body">
+    <p class="post-meta">18 November 2026 &middot; Sofia Vallejo Budziszewski &middot; Institute of Electronic Music and Acoustics (IEM), KUG</p>
+    <h1>Aftershock: a reverb made from earthquakes</h1>
+    <p class="dek">A reverb plugin whose tail is a real seismogram. 35 earthquakes, 80 recordings, a mapping I can defend, and a list of things I haven't proven yet.</p>
+
+    <figure class="wide shot">
+      <img src="img/simple_dark.png" alt="The Aftershock plugin in its simple view: a dotted globe with earthquake locations, a Near/Regional/Far selector, the Petrinja seismogram with the reverb window highlighted, and knobs for Length, Pre-delay, Brightness, Character, Width and Dry/Wet." width="1040" height="720">
+      <figcaption><b>Aftershock</b>, simple view. The Petrinja 2020 earthquake recorded 179 km away is the reverb for this vocal preset.</figcaption>
+    </figure>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="https://github.com/sofiavallejob/aftershock/releases">Download (macOS, Windows)</a>
+      <a class="btn" href="https://github.com/sofiavallejob/aftershock">Code on GitHub</a>
+      <a class="btn" href="https://github.com/sofiavallejob/aftershock/releases/latest/download/Aftershock-Manual.pdf">Manual (PDF)</a>
+    </div>
+
+    <h2>The idea</h2>
+    <p>When an earthquake happens, a seismometer far away first records the P wave, then the S wave, then the surface waves. After that comes the coda: energy that has scattered around the crust and arrives from everywhere, dying away slowly, high frequencies first.</p>
+    <p>That last part behaves a lot like the tail of a room reverb. Lots of reflections, no clear direction, a smooth decay where the highs go before the lows. So the question was simple: what if the tail of your reverb was a real earthquake?</p>
+    <p>It started from looking at "reverb from data" ideas, the kind of thing where a reverb is built from star fields or weather. Most of them map the data onto a reverb somehow. I wanted the one where the data already <i>is</i> a decay, so the mapping could stay as honest as possible. Seismic coda is that.</p>
+
+    <h2>From prototype to plugin</h2>
+    <p>The first version was an HTML page. That was the fastest way to try mappings: load a trace, change a formula, listen. Then came a Pure Data version, and then a proper JUCE plugin (VST3, AU and Standalone, built with CMake). Somewhere along the way the name changed from "Coda Reverb" to "Aftershock".</p>
+    <p>The Pd version taught me most of what the plugin had to get right:</p>
+    <ul>
+      <li><b>The wet path was silent at first.</b> Resizing the array that <code>conv~</code> reads made it abort. The fix was two buffers: render into one, swap when it's done.</li>
+      <li><b>Rendering was slow.</b> I fixed that by running the render subpatch with <code>switch~</code> upsampling, so it computed faster than real time.</li>
+      <li><b>The patch was too crowded.</b> Every idea had a slider, and you couldn't see what mattered.</li>
+    </ul>
+    <p>So the plugin had to be faster, cleaner, and meaningful. Not a toy where an earthquake picture sits on top of a normal reverb.</p>
+
+    <h2>The data</h2>
+    <p>I picked 35 earthquakes to cover nine tectonic settings: subduction interface, intermediate-depth slab, deep slab, continental collision, strike-slip, Mediterranean crust, oceanic, stable craton and volcanic. Each one is recorded at up to three distances: near (under about 330 km), regional (3 to 15 degrees) and far (20 to 60 degrees). That gives 80 recordings.</p>
+    <figure class="wide">
+      <div class="fig"><img src="img/fig1_map.png" alt="World map with 35 earthquakes as coloured dots by tectonic setting, larger for bigger magnitude, each connected by a line to one to three stations shown as triangles." width="1622" height="881"></div>
+      <figcaption><b>Figure 1.</b> The 35 earthquakes, coloured by setting and sized by magnitude, with lines to the stations that recorded them (<code>pack/catalog.json</code>).</figcaption>
+    </figure>
+    <p>Waveforms come from the FDSN data centres EarthScope, ORFEUS and GEOFON, downloaded with ObsPy. Origin times, locations and magnitudes come from the USGS ComCat catalogue, and the P and S arrival times from the iasp91 Earth model. The whole thing is two Python files, <code>pipeline/events.py</code> (the list) and <code>pipeline/build_pack.py</code> (everything else).</p>
+    <figure class="wide">
+      <div class="fig"><img src="img/fig2_seismogram.png" alt="Three-component seismogram of the 2020 Petrinja earthquake at station G.SSB, 917 km away. P, S and surface-wave arrivals are marked; the shaded window from just before P to the end is what becomes the reverb." width="1622" height="1185"></div>
+      <figcaption><b>Figure 2.</b> Petrinja, Croatia, M6.4, at G.SSB in France (917 km). The shaded part, from one second before P to the end of the trace, is 781 s of ground motion that becomes the reverb.</figcaption>
+    </figure>
+
+    <h2>Cleaning, and the bugs that taught me things</h2>
+    <p>Each recording gets its instrument response removed (pre-filter 0.02 to 9.5 Hz), is rotated to vertical, north and east, low-passed at 8 Hz and resampled to 20 Hz. Then it goes through checks, because a bad recording would make a reverb that sounds interesting for the wrong reason:</p>
+    <ul>
+      <li><b>Clipping:</b> raw counts above 90% of the digitiser's range.</li>
+      <li><b>Sensor steps:</b> close to big quakes, the seismometer's mass can drift or the ground tilts. After response removal that step turns into a slow fake signal that even leaks backwards in time. These are rejected, not repaired.</li>
+      <li><b>Energy before P:</b> if there's already a lot going on before the first arrival, something is wrong.</li>
+      <li><b>Gaps</b>, and <b>signal-to-noise below 8</b>.</li>
+      <li><b>An accelerometer fallback:</b> near stations whose broadband sensors clip often have an accelerometer next to them (HN channels) that records strong shaking without clipping.</li>
+    </ul>
+    <p>At first far too many stations were rejected, and almost every rejection was my bug, not the data. Two I remember:</p>
+    <p>The "energy before P" check flagged half of the quiet stations. It turned out to be catching ocean microseisms, the constant low hum of waves on the coast at around 0.2 Hz, which is always there. Checking only 0.5 to 5 Hz, over 20 s windows, fixed it.</p>
+    <p>Many other stations failed when I asked for their instrument metadata. A lot of them have an empty location code, and an empty code in an FDSN request means "any", not "empty"; it has to be written as <code>--</code>. And some stations don't record north and east at all, but two horizontal channels called 1 and 2 (or 2 and 3) at whatever angle the sensor was installed. Those have to be rotated to Z/N/E using the orientation stored in the station metadata, instead of being thrown out for missing N and E.</p>
+
+    <h2>The mapping</h2>
+    <p>This is the core of it, and the part where I made choices. Docs/SCIENCE.md in the repo keeps three things apart: what comes from the data, what is a design choice, and what hasn't been shown yet. I'll do the same here.</p>
+    <figure class="wide">
+      <div class="fig"><img src="img/fig3_mapping.png" alt="Diagram: ten seismic bands from 0.1 to 8 Hz on the left connected to ten audio bands from 120 Hz to 12 kHz on the right. Below, 781 seconds become 3 seconds, a compression of about 260 times." width="1622" height="907"></div>
+      <figcaption><b>Figure 3.</b> Ten log-spaced seismic bands map onto ten log-spaced audio bands. Time is squeezed by k = window / reverb length; for Petrinja at G.SSB and a 3 s reverb, k is about 260.</figcaption>
+    </figure>
+    <p><b>From the data:</b> how much energy each seismic band has, and how its envelope rises and decays over time. The north and east horizontal motion. The bursts of energy between the P and S arrivals.</p>
+    <p><b>Design choices:</b></p>
+    <ul>
+      <li>Ten log-spaced bands from 0.1 to 8 Hz map onto ten log-spaced audio bands from 120 Hz to 12 kHz. Each seismic band's envelope drives band-passed noise in its audio band, so the reverb inherits each band's onset, peaks and decay.</li>
+      <li>Time is compressed by k = window / reverb length, typically 100 to 700 times, so minutes of ground motion become seconds of reverb.</li>
+      <li>North is left, east is right.</li>
+      <li>The eight strongest bursts between P and S become the early reflections, with their real timing.</li>
+    </ul>
+    <p>Log onto log is a choice, not a law. It keeps "low frequencies decay slowest" pointing the same way in both worlds, which is what makes the result sound like a reverb. The alternative is to play the seismogram faster by k, a single frequency transposition. That keeps the seismic spectrum exactly, but ties pitch to length: a shorter reverb is also higher. That's audification, and it's in the plugin too, as the <b>Grit</b> knob.</p>
+    <p>Two more controls decide how much of the data you hear. <b>Spectrum</b> sets how much of the band levels survive: at 1 you get the recording's real spectrum, which for far stations is very dark; at 0 all bands are equally loud and only the shape over time is left. <b>Decay contrast</b> scales how differently the bands decay: 1 is the data, 0 makes them decay alike, above 1 exaggerates it.</p>
+    <p>For every band the pipeline also measures a seismic RT60: the decay after the post-S peak, fitted between -5 and -25 dB like a T20 in room acoustics. Here is one earthquake seen from three distances:</p>
+    <figure class="wide">
+      <div class="fig"><img src="img/fig4_rt60.png" alt="Seismic RT60 per band for Petrinja at three stations. The near station rings for about 100 to 400 seconds, the regional one for 600 to 3500 seconds, the far one only has values in the four lowest bands." width="2270" height="960"></div>
+      <figcaption><b>Figure 4.</b> Seismic RT60 per band for Petrinja 2020 at 179, 917 and 3928 km. Hollow points were fitted over less than 20 dB because of noise; missing points mean that band never rose far enough above the noise.</figcaption>
+    </figure>
+    <p>Farther stations ring longer, and the far station has nothing left above 0.5 Hz: the highs were lost on the way. That's attenuation, and it's what the reverb carries over.</p>
+
+    <h2>What I measured</h2>
+    <p>I rendered all 80 recordings as 3 s impulse responses with neutral settings (spectrum 1, decay contrast 1, no grit, no damping) and measured them as audio: spectral centroid for brightness, and T20 extrapolated to 60 dB for length.</p>
+    <figure class="wide">
+      <div class="fig"><img src="img/fig5_spectrograms.png" alt="Spectrograms of six 3-second impulse responses. Kilauea stops after about 0.7 seconds; Petrinja, Etna and Moiyabana are bright at the start; Tohoku and Okhotsk, recorded thousands of kilometres away, are dark with most energy below 500 Hz." width="2040" height="1273"></div>
+      <figcaption><b>Figure 5.</b> The same six earthquakes as the snare examples below, rendered with neutral settings, closest available station each. Volcanic Kilauea is short; the two far recordings are dark.</figcaption>
+    </figure>
+    <figure class="wide">
+      <div class="fig"><img src="img/fig6_centroid.png" alt="Scatter of spectral centroid against distance for 80 impulse responses, coloured by setting. Medians fall from 2883 Hz near to 1594 Hz regional to 1042 Hz far." width="2230" height="992"></div>
+      <figcaption><b>Figure 6.</b> Spectral centroid of all 80 IRs against distance. Medians: 2883 Hz near (19 IRs), 1594 Hz regional (26), 1042 Hz far (35).</figcaption>
+    </figure>
+    <p>The reverb gets darker with distance, as attenuation predicts. The three volcanic recordings (near and regional) give much shorter tails, a median T20 of 1.4 s against 3.8 to 5.7 s for the distance groups. Deep-slab paths (7.1 s) and stable craton (6.0 s) give the longest.</p>
+    <div class="note"><p>These are not results yet. The groups are small (two deep-slab recordings, three volcanic), and the setting is mixed up with magnitude and with which station happened to be available. They're reasons to run a listening test.</p></div>
+    <p>The test I'm planning: render all recordings at a fixed length and loudness, and convolve speech, a snare and a piano chord with each. Then an ABX test (can people tell same-setting pairs from different-setting pairs?), attribute ratings for brightness and length to correlate with the measured values, and a control: a plain exponential-noise reverb matched in RT60 and spectrum. If listeners can't tell the control apart, the "seismic character" isn't reaching the ear, and I'll say so.</p>
+    <p>Until then I'm not claiming you can hear tectonic settings. You can hear distance, and I can measure it.</p>
+
+    <h2>Making it a real plugin</h2>
+    <p>The audio side is a zero-latency partitioned convolution. The impulse response is rendered on a background thread with a short debounce, so turning a knob never blocks audio; a new IR takes 60 to 90 ms to render. After the convolution there's a wet chain: pre-delay, the early arrivals, a 24 dB/oct low cut, tilt EQ, modulation, width, freeze and ducking.</p>
+    <p>There are 28 factory presets in seven categories (Vocals, Drums, Guitar &amp; Keys, Synths &amp; Pads, Mix &amp; Ambience, Sound Design, Earth Tour), plus A/B compare, undo and redo, and meters. It passes pluginval at strictness 7, and GitHub Actions builds it for macOS (VST3, AU, Standalone, universal) and Windows (VST3, Standalone).</p>
+    <figure class="wide shot">
+      <img src="img/advanced_dark.png" alt="Advanced view: world map, three-component seismogram, impulse response spectrogram, coda fingerprint and every parameter." width="1200" height="970">
+      <figcaption><b>Advanced view</b>: map, three components, the IR spectrogram and every parameter.</figcaption>
+    </figure>
+
+    <h2>Design</h2>
+    <p>The first design was in Figma. My friend Tito looked at it and gave me a list: put the data above the processing, put near/far under the globe, the signal above the controls, group the toolbar. And: "it looks a bit generic."</p>
+    <p>That last one sent me on a detour into a grey "seismograph drum" look, paper and ink. It was clever and it didn't feel like me. So I went back to my own style, colourful on dark or light, with a rotating dotted globe and soft colour fades. The layout reads top to bottom as a sentence: what the earth did, then what you do with it.</p>
+    <figure class="wide shot">
+      <img src="img/simple_light.png" alt="The simple view in the light theme." width="1040" height="720">
+      <figcaption><b>Light theme.</b> Same layout, same colours per function.</figcaption>
+    </figure>
+
+    <h2>Accessibility</h2>
+    <p>Aftershock works with screen readers (VoiceOver, Narrator, NVDA), and every knob speaks its value. Everything can be controlled with the keyboard, with visible focus. There's a high-contrast mode, colour-blind palettes (Okabe-Ito for red-green, plus blue-yellow and monochrome), reduced motion, three text sizes, and help on hover for every control.</p>
+    <p>My research is about turning data into sound so more people can get at it. A sonification tool that only works for people who can see the screen would miss that point.</p>
+    <figure class="wide shot">
+      <img src="img/settings.png" alt="Settings page with theme, window size, text size, high contrast, colour-blind palette, reduced motion and screen reader options." width="1040" height="720">
+      <figcaption><b>Settings</b>: theme, size, text size, contrast, colour palettes and motion.</figcaption>
+    </figure>
+
+    <h2>Listen</h2>
+    <h3>Same snare, six earthquakes</h3>
+    <div class="tracks">
+      <div class="track"><b>Dry snare</b><span>no reverb</span><audio controls preload="none" src="audio/dry_snare.mp3"></audio></div>
+      <div class="track"><b>Petrinja 2020</b><span>Mediterranean crust, M6.4</span><audio controls preload="none" src="audio/cmp_snare_petrinja2020.mp3"></audio></div>
+      <div class="track"><b>Kilauea 2018</b><span>volcanic, M6.9</span><audio controls preload="none" src="audio/cmp_snare_kilauea2018.mp3"></audio></div>
+      <div class="track"><b>Mount Etna 2018</b><span>volcanic, M5.0</span><audio controls preload="none" src="audio/cmp_snare_etna2018.mp3"></audio></div>
+      <div class="track"><b>Moiyabana 2017</b><span>stable craton, Botswana, M6.5</span><audio controls preload="none" src="audio/cmp_snare_botswana2017.mp3"></audio></div>
+      <div class="track"><b>Tohoku 2011</b><span>subduction interface, M9.1</span><audio controls preload="none" src="audio/cmp_snare_tohoku2011.mp3"></audio></div>
+      <div class="track"><b>Sea of Okhotsk 2013</b><span>deep slab, M8.3</span><audio controls preload="none" src="audio/cmp_snare_okhotsk2013.mp3"></audio></div>
+    </div>
+    <h3>Same voice, three distances</h3>
+    <p>Petrinja 2020, recorded 179 km, 917 km and 3928 km away.</p>
+    <div class="tracks">
+      <div class="track"><b>Dry voice</b><span>no reverb</span><audio controls preload="none" src="audio/dry_voice.mp3"></audio></div>
+      <div class="track"><b>Near</b><span>OE.OBKA, 179 km</span><audio controls preload="none" src="audio/cmp_voice_petrinja_near.mp3"></audio></div>
+      <div class="track"><b>Regional</b><span>G.SSB, 917 km</span><audio controls preload="none" src="audio/cmp_voice_petrinja_regional.mp3"></audio></div>
+      <div class="track"><b>Far</b><span>II.BORK, 3928 km</span><audio controls preload="none" src="audio/cmp_voice_petrinja_tele.mp3"></audio></div>
+    </div>
+    <h3>Presets</h3>
+    <div class="tracks">
+      <div class="track"><b>Close Quarters, dry</b><span>voice</span><audio controls preload="none" src="audio/dry_voice.mp3"></audio></div>
+      <div class="track"><b>Close Quarters</b><span>Vocals &middot; Petrinja, near</span><audio controls preload="none" src="audio/01_close_quarters.mp3"></audio></div>
+      <div class="track"><b>Tight Kit Room, dry</b><span>drum machine</span><audio controls preload="none" src="audio/dry_drums.mp3"></audio></div>
+      <div class="track"><b>Tight Kit Room</b><span>Drums &middot; Kilauea, near</span><audio controls preload="none" src="audio/05_tight_kit_room.mp3"></audio></div>
+      <div class="track"><b>Piano in the Craton, dry</b><span>chord</span><audio controls preload="none" src="audio/dry_chord.mp3"></audio></div>
+      <div class="track"><b>Piano in the Craton</b><span>Guitar &amp; Keys &middot; Moiyabana, near</span><audio controls preload="none" src="audio/20_piano_in_the_craton.mp3"></audio></div>
+      <div class="track"><b>Mantle Drone, dry</b><span>bass note</span><audio controls preload="none" src="audio/dry_bass_note.mp3"></audio></div>
+      <div class="track"><b>Mantle Drone</b><span>Synths &amp; Pads &middot; Sea of Okhotsk, far</span><audio controls preload="none" src="audio/16_mantle_drone.mp3"></audio></div>
+    </div>
+    <p>All 20 preset examples are on the <a href="https://github.com/sofiavallejob/aftershock/tree/main/examples">examples page</a> in the repo (<code>examples/index.html</code>).</p>
+
+    <h2>Try it</h2>
+    <p>Installers for macOS and Windows are on the <a href="https://github.com/sofiavallejob/aftershock/releases">releases page</a>, with the <a href="https://github.com/sofiavallejob/aftershock/releases/latest/download/Aftershock-Manual.pdf">manual (PDF)</a>. The code, the data pipeline and SCIENCE.md are in the <a href="https://github.com/sofiavallejob/aftershock">repo</a>. Found something off? <a href="https://github.com/sofiavallejob/aftershock/issues">Open an issue</a>.</p>
+    <p>The figures on this page are made by <a href="make_figures.py"><code>make_figures.py</code></a> from the repo's data and the plugin's own <code>aftershock_render</code> tool, so you can regenerate them.</p>
+
+    <h2>What's next</h2>
+    <ul>
+      <li><b>The listening test.</b> It decides whether "setting" stays a feature or becomes just a label.</li>
+      <li><b>More earthquakes.</b> Especially near and regional recordings of great earthquakes, which mostly clip, and more volcanic and deep events so those groups aren't two or three recordings.</li>
+      <li><b>Other mappings.</b> Log onto log is one defensible choice; I want to keep the others open and test them the same way.</li>
+    </ul>
+
+    <h2>Credits and licence</h2>
+    <p>Waveforms from the FDSN data centres EarthScope (formerly IRIS DMC), ORFEUS and GEOFON; each station's network has its own citation and DOI at <a href="https://www.fdsn.org/networks/">fdsn.org/networks</a>. Earthquake origins from the USGS ComCat catalogue, travel times from iasp91 via ObsPy TauP, coastlines from Natural Earth. Built with JUCE; the pixel font is Pixelify Sans. The dry example sounds are from Freesound, by sample_me, sound_bar_kk, tboneaudio, masterg180, johnzealeymusic, thescarlettwitch89, plagasul, timkahn, saltbearer, sirbagel and frankyfire (see <a href="https://github.com/sofiavallejob/aftershock/blob/main/examples/CREDITS.md">CREDITS.md</a>).</p>
+    <p>The code is open source under the <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL v3</a>. Free to port, by humans. Bring your own ears.</p>
+  </div>
+
+  <div class="post-foot">
+    <span>Aftershock 1.0.0</span>
+    <a href="../../#blog">Back to the desktop</a>
+  </div>
+</article>
+</body>
+</html>
